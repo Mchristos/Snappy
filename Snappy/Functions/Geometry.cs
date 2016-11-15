@@ -1,0 +1,103 @@
+﻿using Snappy.ValueObjects;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Snappy.Functions
+{
+    public static class Geometry
+    {
+        /// <summary>
+        /// Projects a point onto a line segment, not taking into account the curvature of earth
+        /// (assumes the points are in a 2d cartesian space).
+        /// </summary>
+        /// <param name="point"> Input point </param>
+        /// <param name="segmentStart"> Start of segment to snap onto </param>
+        /// <param name="segmentEnd"> End of segment to snap onto </param>
+        /// <returns></returns>
+        public static Coord SnapToSegment(this Coord point, Coord segmentStart, Coord segmentEnd)
+        {
+            if (segmentStart == segmentEnd) return segmentStart;
+
+            var u = ((point.Latitude - segmentStart.Latitude) * (segmentEnd.Latitude - segmentStart.Latitude)) + ((point.Longitude - segmentStart.Longitude) * (segmentEnd.Longitude - segmentStart.Longitude));
+
+            var udenominator = Math.Pow(segmentEnd.Latitude - segmentStart.Latitude, 2) + Math.Pow(segmentEnd.Longitude - segmentStart.Longitude, 2);
+
+            u /= udenominator;
+
+            var rLatitude = segmentStart.Latitude + (u * (segmentEnd.Latitude - segmentStart.Latitude));
+            var rLongitude = segmentStart.Longitude + (u * (segmentEnd.Longitude - segmentStart.Longitude));
+            var result = new Coord(rLatitude, rLongitude);
+            var minx = Math.Min(segmentStart.Latitude, segmentEnd.Latitude);
+            var maxx = Math.Max(segmentStart.Latitude, segmentEnd.Latitude);
+            var miny = Math.Min(segmentStart.Longitude, segmentEnd.Longitude);
+            var maxy = Math.Max(segmentStart.Longitude, segmentEnd.Longitude);
+            var isValid = (result.Latitude >= minx && result.Latitude <= maxx) && (result.Longitude >= miny && result.Longitude <= maxy);
+            if (isValid)
+            {
+                return result;
+            }
+            var distanceToStart = segmentStart.HaversineDistance(point);
+            var distanceToEnd = segmentEnd.HaversineDistance(point);
+            return (distanceToStart < distanceToEnd ? segmentStart : segmentEnd);
+        }
+
+        /// <summary>
+        /// Projects a point onto a polyline, not taking into account the curvature of earth.
+        /// (assumes the points are in a 2d cartesian space).
+        /// </summary>
+        /// <param name="point"> Input point </param>
+        /// <param name="shape"> Polyline </param>
+        /// <param name="position"> Zero-based index of the segment in the polyline that it got snapped onto (considering the polyline as a sequence of segments). </param>
+        /// <returns></returns>
+        public static Coord SnapToPolyline(this Coord point, List<Coord> shape, out int position)
+        {
+            double leastDistance = double.PositiveInfinity;
+            int leastIndex = -1;
+            List<Coord> projections = new List<Coord>();
+            for (int i = 1; i < shape.Count; i++)
+            {
+                Coord projection = point.SnapToSegment(shape[i - 1], shape[i]);
+                projections.Add(projection);
+                double distance = point.HaversineDistance(projection).DistanceInMeters;
+                if (distance < leastDistance)
+                {
+                    leastDistance = distance;
+                    leastIndex = i - 1;
+                }
+            }
+
+            if (leastIndex > -1)
+            {
+                position = leastIndex;
+                return projections[position];
+            }
+            else throw new Exception("Failed to find the index of the closest projection to the stop");
+        }
+
+        /// <summary>
+        /// Gets bounding box bounding a set of co-ordinates
+        /// </summary>
+        /// <param name="coordinates"></param>
+        /// <returns></returns>
+        public static BoundingBox GetBoundingBox(this IEnumerable<Coord> coordinates)
+        {
+            var lats = coordinates.Select(x => x.Latitude);
+            var lngs = coordinates.Select(x => x.Longitude);
+            return new BoundingBox(lngs.Min(), lats.Min(), lngs.Max(), lats.Max());
+        }
+
+        public static BoundingBox GetBoundingBox(this IEnumerable<Coord> coordinates, double marginInMeters)
+        {
+            var lats = coordinates.Select(x => x.Latitude);
+            var lngs = coordinates.Select(x => x.Longitude);
+            var latMargin = MathExtensions.MetersToDeltaLat(marginInMeters);
+            //random reference latitude! 
+            var randomLat = coordinates.First().Latitude;
+            var lngMargin = MathExtensions.MetersToDeltaLng(marginInMeters, randomLat);
+
+            return new BoundingBox(lngs.Min() - lngMargin, lats.Min() - latMargin, lngs.Max() + lngMargin, lats.Max() + latMargin);
+        }
+
+    }
+}
