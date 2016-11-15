@@ -18,6 +18,6 @@ namespace Snappy.Config
         public const double Beta_For_Transitions_In_Meters = 5;
 
         // don't try pathfind further than 5kms!
-        public const double Dijstra_Upper_Search_Limit_In_Meters = 5000;
+        public const double Dijstra_Upper_Search_Limit_In_Meters = 1000;
     }
 }

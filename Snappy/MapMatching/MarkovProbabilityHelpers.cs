@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Snappy.Config;
 
 namespace Snappy.MapMatching
 {
@@ -19,36 +20,46 @@ namespace Snappy.MapMatching
 
         public static double TransitionProbability(RoadGraph graph, ProjectToRoad projection1, ProjectToRoad projection2)
         {
+            DirectedRoad road1 = projection1.Road;
+            DirectedRoad road2 = projection2.Road;
+
+
             //calculate on road distance 
             Distance onRoadDistance;
             Distance startingDist = projection1.DistanceToEnd;
             Distance endDist = projection2.DistanceFromStart;
 
-            if (projection1.Road == projection2.Road)
+            // Roads are the same: 
+            if (road1 == road2)
             {
                 //negative if going backwards along road
                 onRoadDistance = projection2.DistanceFromStart - projection1.DistanceFromStart;
             }
-            else if( projection1.Road.End == projection2.Road.Start)
+
+            // Roads are connected
+            else if( road1.End == road2.Start)
             {
-                //CHANGE
-                onRoadDistance = projection2.DistanceFromStart - projection1.DistanceFromStart;
+                onRoadDistance = startingDist + endDist;
             }
+
+            // Try connect roads using Dijstra
             else
             {
-                var connection = PathFinding.DijstraConnectRoads(graph, projection1.Road, projection2.Road);
-
-                if(connection.Count > 0)
+                List<DirectedRoad> path;
+                if( PathFinding.DijstraTryFindPath(graph, road1.End, road2.Start, out path))
                 {
-                    Distance middleDist = connection.Select(x => x.Length).Aggregate((x, y) => x + y);
-
-                    onRoadDistance = startingDist + middleDist + endDist;
+                    Distance connectingDist = Distance.Zero;
+                    foreach (var road in path)
+                    {
+                        connectingDist += road.Length;
+                    }
+                    onRoadDistance = startingDist + connectingDist + endDist;
                 }
                 else
                 {
-                    onRoadDistance = startingDist + endDist;
+                    //cannot connect up roads. transition probability is zero 
+                    return 0;
                 }
-
             }
 
 

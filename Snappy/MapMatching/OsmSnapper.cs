@@ -37,7 +37,7 @@ namespace Snappy.MapMatching
             //get correct sequence of roads
             var sequence = mapMatcher.State.GetMostLikelySequence();
             //connect up sequence
-            var connectedSequence = sequence;//.DijstraConnectUpSequence(osmGraph);
+            var connectedSequence = sequence.DijstraConnectUpSequence(osmGraph);
 
             return connectedSequence;
         }

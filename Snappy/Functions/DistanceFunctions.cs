@@ -1,6 +1,7 @@
 ﻿using Snappy.ValueObjects;
 using System;
 using System.Collections.Generic;
+using Snappy.Config;
 
 namespace Snappy.Functions
 {

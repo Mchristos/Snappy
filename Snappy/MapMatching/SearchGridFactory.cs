@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Snappy.ValueObjects;
 using Snappy.Functions;
+using Snappy.Config;
 
 namespace Snappy.MapMatching
 {

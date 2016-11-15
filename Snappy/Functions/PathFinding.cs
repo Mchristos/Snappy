@@ -3,16 +3,11 @@ using System.Collections.Generic;
 using System;
 using Sys = System.Collections.Generic;
 using System.Linq;
+using C5;
 
 namespace Snappy.Functions
 {
 
-    public class NodeMemory
-    {
-        public double Distance { get; set; }
-
-        public long Prev { get; set; }
-    }
     public static class PathFinding
     {
 
@@ -23,83 +18,80 @@ namespace Snappy.Functions
         /// <param name="origin"></param>
         /// <param name="destination"></param>
         /// <returns></returns>
-        public static List<DirectedRoad> DijstraFindPath(RoadGraph graph, long origin, long destination)
+        public static bool DijstraTryFindPath(RoadGraph graph, long origin, long destination, out List<DirectedRoad> path)
         {
-
+            path = new List<DirectedRoad>();
             if (!graph.ContainsKey(origin))
             {
-                throw new ArgumentException("graph does not contain origin as a node");
+                return false;
             }
-            if (!graph.ContainsKey(destination))
+            if (origin == destination)
             {
-                //graph does not necessarily contain destination as a key...
+                // correct path is empty
+                return true; 
             }
-            if (origin == destination) { return new List<DirectedRoad>(); }
 
+            SearchItem currentSearch = new SearchItem(origin, null, null, 0);
 
+            IntervalHeap<SearchItem> heap = new IntervalHeap<SearchItem>();
+            var itemLookup = new Dictionary<long, SearchItem>();
+            heap.Add(currentSearch);
+            itemLookup[origin] = currentSearch;
 
-
-
-
-            var dist = new Dictionary<long, NodeMemory>();
-
-            var dist = new Dictionary<long, double>();
-            // for each node gives the directed road that it CAME FROM
-            var prev = new Dictionary<long, DirectedRoad>();
-            dist[origin] = 0;
-
-
-            var Q = new HashSet<long>();
-            Q.Add(origin);
-            long currentNode = origin;
-
-
-            while (Q.Count != 0)
+            while (heap.Count != 0)
             {
-                currentNode = Q.Aggregate((x, y) => dist[x] < dist[y] ? x : y);
+                // find the least item and remove from heap
+                currentSearch = heap.FindMin();
+                if(currentSearch.Distance > Config.Constants.Dijstra_Upper_Search_Limit_In_Meters)
+                {
+                    return false;
+                }
+                heap.DeleteMin();
 
-                if (currentNode == destination)
+                if (currentSearch.Id == destination)
                 {
                     break;
                 }
-                if (graph.ContainsKey(currentNode))
-                {
-                    foreach (var road in graph[currentNode])
-                    {
-                        var alt = dist[currentNode] + road.Length.DistanceInMeters;
 
-                        if (dist.ContainsKey(road.End))
+
+                if (graph.ContainsKey(currentSearch.Id))
+                {
+                    foreach (var road in graph[currentSearch.Id])
+                    {
+                        // calculate new possible distance
+                        var alt = currentSearch.Distance + road.Length.DistanceInMeters;
+                        var potentialNewItem = new SearchItem(road.End, road, currentSearch, alt);
+
+                        if (itemLookup.ContainsKey(road.End))
                         {
-                            if (alt < dist[road.End])
+                            SearchItem searchItem = itemLookup[road.End];
+                            if( alt < searchItem.Distance)
                             {
-                                dist[road.End] = alt;
-                                prev[road.End] = road;
-                                Q.Add(road.End);
+                                itemLookup[road.End] = potentialNewItem;
+                                heap.Add(potentialNewItem);
                             }
+
                         }
                         else
                         {
-                            dist[road.End] = alt;
-                            prev[road.End] = road;
-                            Q.Add(road.End);
+                            itemLookup[road.End] = potentialNewItem;
+                            heap.Add(potentialNewItem);
                         }
                     }
-                }
-                Q.Remove(currentNode);
+                }             
             }
 
             //trace back path
-
             List<DirectedRoad> result = new List<DirectedRoad>();
-            long tracer = destination;
-            while (tracer != origin)
+            SearchItem tracer = currentSearch;
+            while (tracer.PrevRoad != null)
             {
-                var road = prev[tracer];
-                result.Add(road);
-                tracer = road.Start;
+                result.Add(tracer.PrevRoad);
+                tracer = tracer.Prev;
             }
             result.Reverse();
-            return result;
+            path = result;
+            return true;
         }
 
         /// <summary>
@@ -119,9 +111,18 @@ namespace Snappy.Functions
             for (int i = 1; i < cleanedSequence.Count; i++)
             {
                 //add all necessary roads up to and including the i'th
-                List<DirectedRoad> connection = DijstraFindPath(graph, cleanedSequence[i - 1].End, cleanedSequence[i].Start);
-                result.AddRange(connection);
-                result.Add(cleanedSequence[i]);
+                List<DirectedRoad> connection;
+                    
+                if ( DijstraTryFindPath(graph, cleanedSequence[i - 1].End, cleanedSequence[i].Start, out connection ))
+                {
+                    result.AddRange(connection);
+                    result.Add(cleanedSequence[i]);
+                }
+                else
+                {
+                    throw new Exception("Unable to connect up sequence of roads");
+                }
+
             }
             return result;
         }
