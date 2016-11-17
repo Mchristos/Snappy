@@ -66,7 +66,7 @@ namespace Snappy.OpenStreetMaps
             }
             string result = response.Content.ReadAsStringAsync().Result;
             stopwatch.Stop();
-            Console.WriteLine(stopwatch.Elapsed.TotalSeconds.ToString() + " seconds to get API response");
+            Console.WriteLine(stopwatch.Elapsed.TotalSeconds.ToString() + " seconds to get response from " + apiUrl);
 
             return result;
         }

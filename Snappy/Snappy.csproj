@@ -50,15 +50,15 @@
   <ItemGroup>
     <Compile Include="Config\Urls.cs" />
     <Compile Include="Config\Constants.cs" />
-    <Compile Include="DataStructures\GraphSearch.cs" />
     <Compile Include="DataStructures\DirectedRoad.cs" />
     <Compile Include="DataStructures\ProbabilityVector.cs" />
     <Compile Include="DataStructures\RoadGraph.cs" />
     <Compile Include="DataStructures\RoadSearchGrid.cs" />
     <Compile Include="DataStructures\SearchGrid.cs" />
-    <Compile Include="DataStructures\SearchItem.cs" />
+    <Compile Include="DataStructures\DijstraSearchItem.cs" />
     <Compile Include="Enums\OverpassApi.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Functions\CoordinateFunctions.cs" />
     <Compile Include="Functions\DictionaryExtensions.cs" />
     <Compile Include="Functions\DistanceFunctions.cs" />
     <Compile Include="Functions\EnumerableExtensions.cs" />

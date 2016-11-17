@@ -15,6 +15,9 @@ namespace Snappy.MapMatching
 
         public static RoadSearchGrid ComputeSearchGrid(RoadGraph graph, double gridSizeInMeters)
         {
+            var stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+
             List<Coord> allCoords = graph.Roads.SelectMany(x => x.Geometry).ToList();
 
             var latitudes = allCoords.Select(x => x.Latitude);
@@ -46,7 +49,12 @@ namespace Snappy.MapMatching
 
             var result = new RoadSearchGrid(left, bottom, gridSizeX, gridSizeY, cellCountX, cellCountY);
             // TODO: correct roads input below??
-            result.Populate(graph.Values.SelectMany(x => x));         
+            result.Populate(graph.Values.SelectMany(x => x));
+
+
+            stopwatch.Stop();
+            Console.WriteLine(stopwatch.Elapsed.TotalSeconds + " seconds to compute grid search data structure for searching nearby roads.");
+
             return result;
         }
 

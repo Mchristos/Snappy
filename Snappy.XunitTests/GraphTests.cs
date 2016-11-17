@@ -11,12 +11,12 @@ namespace Snappy.XunitTests
     public class GraphTests
     {
 
-        [Fact]
-        public void BuildGraph()
-        {
-            RoadGraph graph = DataHelpers.BuildGraph1();
-            Assert.Equal(4, graph.Count);
-        }
+        //[Fact]
+        //public void BuildGraph()
+        //{
+        //    RoadGraph graph = DataHelpers.BuildGraph1();
+        //    Assert.Equal(4, graph.Count);
+        //}
 
 
     }

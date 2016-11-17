@@ -37,9 +37,8 @@ namespace Snappy.Functions
             return result;
         }
 
-
         /// <summary>
-        /// Eradicates duplicated neighboring values 
+        /// Eradicates duplicated neighboring values
         /// e.g. [0,1,2,2,2,3] --> [0,1,2,3]
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -61,7 +60,5 @@ namespace Snappy.Functions
             }
             return result;
         }
-             
-
     }
 }

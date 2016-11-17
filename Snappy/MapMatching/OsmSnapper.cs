@@ -24,22 +24,42 @@ namespace Snappy.MapMatching
 
         
 
-        public List<DirectedRoad> SnapDat(List<Coord> coords)
+        public List<Coord> SnapDat(List<Coord> coords)
         {
+            var totalTimeStopwatch = new System.Diagnostics.Stopwatch();
+            totalTimeStopwatch.Start();
+
             BoundingBox boundingBox = coords.GetBoundingBox(20);
             var osmGraph = OsmGraphBuilder.BuildInRegion(_overpassApi, boundingBox);
             var mapMatcher = new MapMatcher(osmGraph);
-            foreach (var coord in coords)
+
+            var snapStopwatch = new System.Diagnostics.Stopwatch();
+            snapStopwatch.Start();
+            foreach (var coord in coords.GetCleanedCoordinates())
             {
                 mapMatcher.UpdateState(coord);
             }
-
             //get correct sequence of roads
             var sequence = mapMatcher.State.GetMostLikelySequence();
             //connect up sequence
             var connectedSequence = sequence.DijstraConnectUpSequence(osmGraph);
+            var result = Trim(connectedSequence);
+            snapStopwatch.Stop();
+            Console.WriteLine(snapStopwatch.Elapsed.TotalSeconds + " seconds to perform snapping");
 
-            return connectedSequence;
+            totalTimeStopwatch.Stop();
+            Console.WriteLine("Total snap time: " + totalTimeStopwatch.Elapsed.TotalSeconds + " seconds");
+            return result;
+        }
+
+
+
+        private List<Coord> Trim(List<DirectedRoad> roads)
+        {
+            var result = roads.SelectMany(x => x.Geometry.Take(x.Geometry.Count - 1)).ToList();
+            result.Add(roads.Last().Geometry.Last());
+
+            return result;
         }
 
 

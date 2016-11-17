@@ -31,7 +31,7 @@ namespace Snappy.MapMatching
 
         public void UpdateState(Coord coord, DateTime timeStamp = default(DateTime))
         {
-            List<DirectedRoad> nearbyRoads = SearchGrid.GetNearbyValues(coord);
+            List<DirectedRoad> nearbyRoads = SearchGrid.GetNearbyValues(coord, Constants.Search_Grid_Grid_Size_In_Meters);
             List<ProjectToRoad> nearbyRoadProjections = nearbyRoads.Select(x => new ProjectToRoad(coord, x)).ToList();
 
             // Initialize new transition memory 

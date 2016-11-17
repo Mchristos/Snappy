@@ -1,6 +1,7 @@
 ﻿using Snappy.DataStructures;
 using Snappy.Functions;
 using Snappy.ValueObjects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,11 +12,15 @@ namespace Snappy.OpenStreetMaps
         public static RoadGraph BuildInRegion(string apiUrl, BoundingBox boundingBox)
         {
             string response = OsmHelpers.GetOsmResponse(apiUrl, boundingBox);
-            var elements = OsmHelpers.GetOsmElements(response);
 
+            // Build graph from API response 
+
+            var stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+
+            var elements = OsmHelpers.GetOsmElements(response);
             List<Way> ways = elements.Where(x => x is Way).Select(x => x as Way).ToList();
             var nodeLookup = elements.Where(x => x is OsmNode).Select(x => x as OsmNode).ToDictionary(x => x.Id, y => y);
-
             var intersectionCounter = ways.Select(x => x.Nodes).CountRepeatedIds();
             // build graph
             RoadGraph graph = new RoadGraph();
@@ -35,6 +40,9 @@ namespace Snappy.OpenStreetMaps
                     }
                 }
             }
+
+            stopwatch.Stop();
+            Console.WriteLine(stopwatch.Elapsed.TotalSeconds + " seconds to build OSM road graph.");
             return graph;
         }
     }

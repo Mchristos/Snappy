@@ -60,6 +60,13 @@ namespace Snappy.Functions
             return returnList;
         }
 
+        /// <summary>
+        /// Gets all cells (inclusive) surrounding a cell in a grid of given dimentions
+        /// </summary>
+        /// <param name="cell"> cell in grid in form [x,y] </param>
+        /// <param name="gridDimensionX"></param>
+        /// <param name="gridDimensionY"></param>
+        /// <returns></returns>
         public static List<int[]> GetSurroundingCells(this int[] cell, int gridDimensionX, int gridDimensionY)
         {
             List<int[]> result = new List<int[]>();

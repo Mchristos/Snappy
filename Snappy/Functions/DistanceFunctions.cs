@@ -1,7 +1,7 @@
-﻿using Snappy.ValueObjects;
+﻿using Snappy.Config;
+using Snappy.ValueObjects;
 using System;
 using System.Collections.Generic;
-using Snappy.Config;
 
 namespace Snappy.Functions
 {
@@ -34,7 +34,7 @@ namespace Snappy.Functions
 
         public static Distance ComputeCumulativeDistanceFromStart(List<Coord> geometry, int position, Coord projection)
         {
-            if( position > geometry.Count - 1 || position < 0) { throw new ArgumentException("Invalid position in geometry"); }    
+            if (position > geometry.Count - 1 || position < 0) { throw new ArgumentException("Invalid position in geometry"); }
 
             Distance result = Distance.Zero;
             for (int i = 1; i <= position; i++)
@@ -45,6 +45,7 @@ namespace Snappy.Functions
 
             return result;
         }
+
         public static Distance ComputeDistanceToEnd(List<Coord> geometry, int position, Coord projection)
         {
             if (position > geometry.Count - 1 || position < 0) { throw new ArgumentException("Invalid position in geometry"); }

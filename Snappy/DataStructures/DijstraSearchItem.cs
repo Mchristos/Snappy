@@ -1,22 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Snappy.DataStructures
 {
-    public class SearchItem : IComparable<SearchItem>
+    public class DijstraSearchItem : IComparable<DijstraSearchItem>
     {
         public long Id;
 
-        //remembers the road leading to this item (since different roads can come from the same previous node id) 
+        //remembers the road leading to this item (since different roads can come from the same previous node id)
         public DirectedRoad PrevRoad { get; set; }
-        public SearchItem Prev { get; set; }
+
+        public DijstraSearchItem Prev { get; set; }
 
         public double Distance { get; set; }
 
-        public SearchItem(long id, DirectedRoad prevRoad, SearchItem prev, double dist)
+        public DijstraSearchItem(long id, DirectedRoad prevRoad, DijstraSearchItem prev, double dist)
         {
             //if(prevRoad.Start != prev.Id) { throw new ArgumentException("Not correct."); }
             Id = id;
@@ -25,7 +22,7 @@ namespace Snappy.DataStructures
             Distance = dist;
         }
 
-        public int CompareTo(SearchItem other)
+        public int CompareTo(DijstraSearchItem other)
         {
             return Distance.CompareTo(other.Distance);
         }

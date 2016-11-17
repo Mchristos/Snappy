@@ -42,7 +42,9 @@ namespace Snappy.MapMatching
 
         public List<DirectedRoad> GetMostLikelySequence()
         {
-            DirectedRoad mostLikelyRoad = Probabilities.GetMostProbableItem();            
+            // get most probable road
+            DirectedRoad mostLikelyRoad = Probabilities.GetMostProbableItem();
+            // trace back most likely sequence
             List<DirectedRoad> result = TransitionMemory.TraceBackSequence(mostLikelyRoad);
             return result;
         }

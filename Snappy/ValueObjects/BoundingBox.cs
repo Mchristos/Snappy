@@ -25,5 +25,16 @@ namespace Snappy.ValueObjects
             LngUpperBound = east;
             LatUpperBound = north;
         }
+
+
+
+        
+        public Coord Center
+        {
+            get
+            {
+                return new Coord((LatLowerBound + LatUpperBound) / 2, (LngLowerBound + LngUpperBound) / 2);
+            }                
+        }
     }
 }
