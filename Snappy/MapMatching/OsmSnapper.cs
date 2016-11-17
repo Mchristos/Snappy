@@ -37,7 +37,14 @@ namespace Snappy.MapMatching
             snapStopwatch.Start();
             foreach (var coord in coords.GetCleanedCoordinates())
             {
-                mapMatcher.UpdateState(coord);
+
+                UpdateAnalytics analytics;
+                if (!mapMatcher.TryUpdateState(coord, out analytics))
+                {
+                    string error = String.Format("Map matcher crashed for the following reason: ", analytics.UpdateStatus);
+                    Console.WriteLine(error);
+                    mapMatcher.Reset();
+                }
             }
             //get correct sequence of roads
             var sequence = mapMatcher.State.GetMostLikelySequence();

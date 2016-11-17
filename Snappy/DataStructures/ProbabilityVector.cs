@@ -38,7 +38,7 @@ namespace Snappy.DataStructures
                 throw new Exception("Probability vector is zero everywhere : cannot normalize ");
             }            
         }
-        private double GetSum()
+        public double GetSum()
         {
             return this.Values.Sum();
         }

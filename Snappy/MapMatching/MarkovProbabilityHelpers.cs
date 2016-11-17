@@ -1,18 +1,14 @@
-﻿using Snappy.DataStructures;
+﻿using Snappy.Config;
+using Snappy.DataStructures;
 using Snappy.Functions;
 using Snappy.ValueObjects;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Snappy.Config;
 
 namespace Snappy.MapMatching
 {
-    class MarkovProbabilityHelpers
+    internal class MarkovProbabilityHelpers
     {
-
         public static double EmissionProbability(ProjectToRoad projection)
         {
             return ProbabilityFunctions.HalfGaussian(projection.ProjectedDistance.DistanceInMeters, Constants.Sigma_Value_In_Meters_For_Emissions);
@@ -23,21 +19,20 @@ namespace Snappy.MapMatching
             DirectedRoad road1 = projection1.Road;
             DirectedRoad road2 = projection2.Road;
 
-
-            //calculate on road distance 
+            //calculate on road distance
             Distance onRoadDistance;
             Distance startingDist = projection1.DistanceToEnd;
             Distance endDist = projection2.DistanceFromStart;
 
-            // Roads are the same: 
-            if (road1 == road2)
+            // Roads are the same:
+            if (road1.Equals(road2))
             {
                 //negative if going backwards along road
                 onRoadDistance = projection2.DistanceFromStart - projection1.DistanceFromStart;
             }
 
             // Roads are connected
-            else if( road1.End == road2.Start)
+            else if (road1.End == road2.Start)
             {
                 onRoadDistance = startingDist + endDist;
             }
@@ -46,7 +41,7 @@ namespace Snappy.MapMatching
             else
             {
                 List<DirectedRoad> path;
-                if( PathFinding.DijstraTryFindPath(graph, road1.End, road2.Start, out path))
+                if (PathFinding.DijstraTryFindPath(graph, road1.End, road2.Start, out path))
                 {
                     Distance connectingDist = Distance.Zero;
                     foreach (var road in path)
@@ -57,21 +52,15 @@ namespace Snappy.MapMatching
                 }
                 else
                 {
-                    //cannot connect up roads. transition probability is zero 
+                    //cannot connect up roads. transition probability is zero
                     return 0;
                 }
             }
-
-
 
             Distance haversineDistance = projection1.Coordinate.HaversineDistance(projection2.Coordinate);
 
             double diffInMeters = Math.Abs(haversineDistance.DistanceInMeters - onRoadDistance.DistanceInMeters);
             return ProbabilityFunctions.ExponentialDistribution(diffInMeters, Constants.Beta_For_Transitions_In_Meters);
-
         }
-
-
-
     }
 }

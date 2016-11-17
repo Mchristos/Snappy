@@ -29,9 +29,20 @@ namespace Snappy.MapMatching
             State = MapMatchState.InitialState();
         }
 
-        public void UpdateState(Coord coord, DateTime timeStamp = default(DateTime))
+        public bool TryUpdateState(Coord coord, out UpdateAnalytics analytics, DateTime timeStamp = default(DateTime))
         {
+            analytics = new UpdateAnalytics();
+            analytics.PrevProbabilityVector = State.Probabilities;
+
+            // Find nearby roads using search grid
             List<DirectedRoad> nearbyRoads = SearchGrid.GetNearbyValues(coord, Constants.Search_Grid_Grid_Size_In_Meters);
+            if(nearbyRoads.Count == 0)
+            {
+                // If no nearby roads, update fails. 
+                analytics.UpdateStatus = Enums.MapMatchUpdateStatus.NoNearbyRoads;
+                return false;
+            }
+
             List<ProjectToRoad> nearbyRoadProjections = nearbyRoads.Select(x => new ProjectToRoad(coord, x)).ToList();
 
             // Initialize new transition memory 
@@ -47,6 +58,7 @@ namespace Snappy.MapMatching
                     newProbabilityVector[projection.Road] = emission;
                     transitionMemory[projection.Road] = null;
                 }
+                analytics.EmissionProbabilities = newProbabilityVector;
             }
             else
             {
@@ -54,15 +66,19 @@ namespace Snappy.MapMatching
                 {
                     //Calculate emission probability
                     double emission = MarkovProbabilityHelpers.EmissionProbability(projection);
+                    analytics.EmissionProbabilities[projection.Road] = emission;
 
                     //Calculate maximum transition from possible prev state 
                     var maxCandidates = new Dictionary<DirectedRoad, double>();
                     foreach (var prevProjection in State.PrevNearbyRoadsAndProjections)
                     {
                         double transition = MarkovProbabilityHelpers.TransitionProbability(Graph, prevProjection, projection);
+                        analytics.AllTransitionProbabilities[Tuple.Create(prevProjection.Road, projection.Road)] = transition;
                         maxCandidates[prevProjection.Road] = transition * State.Probabilities[prevProjection.Road];
                     }
                     var maxPair = maxCandidates.Aggregate((x, y) => x.Value > y.Value ? x : y);
+
+                    analytics.MostProbableTransitions[Tuple.Create(maxPair.Key, projection.Road)] = maxPair.Value;
 
                     //probability update
                     newProbabilityVector[projection.Road] = maxPair.Value * emission;
@@ -72,7 +88,23 @@ namespace Snappy.MapMatching
                 }
             }
 
+            // CHECK IF UPDATE FAILED
+            if(analytics.EmissionProbabilities.GetSum() < double.Epsilon)
+            {
+                analytics.UpdateStatus = Enums.MapMatchUpdateStatus.ZeroEmissions;
+                return false;
+            }            
+            if( analytics.AllTransitionProbabilities.Count > 0 && analytics.AllTransitionProbabilities.GetSum() < double.Epsilon)
+            {
+                analytics.UpdateStatus = Enums.MapMatchUpdateStatus.NoPossibleTransitions;
+                return false;
+            }
 
+
+            if(newProbabilityVector.GetSum() < double.Epsilon)
+            {
+                throw new Exception("SUM TING WONG");
+            }
             //UPDATE STATE: 
 
             // 1. Update probability vector
@@ -84,10 +116,13 @@ namespace Snappy.MapMatching
 
             //3. Update prev coord and date 
             State.PrevCoord = coord;
-            State.PrevTime = timeStamp;
+            State.PrevTime = timeStamp;            
 
             // 4. 
             State.PrevNearbyRoadsAndProjections = nearbyRoadProjections;
+
+            analytics.UpdateStatus = Enums.MapMatchUpdateStatus.SuccessfullyUpdated;
+            return true;
         }
         public void Reset()
         {

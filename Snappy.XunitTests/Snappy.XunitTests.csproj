@@ -64,6 +64,7 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="ExtensionsTests.cs" />
     <Compile Include="GraphTests.cs" />
+    <Compile Include="Helpers\DataHelpers.cs" />
     <Compile Include="SearchGridTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

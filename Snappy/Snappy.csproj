@@ -56,6 +56,7 @@
     <Compile Include="DataStructures\RoadSearchGrid.cs" />
     <Compile Include="DataStructures\SearchGrid.cs" />
     <Compile Include="DataStructures\DijstraSearchItem.cs" />
+    <Compile Include="Enums\MapMatchUpdateStatus.cs" />
     <Compile Include="Enums\OverpassApi.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Functions\CoordinateFunctions.cs" />
@@ -67,6 +68,7 @@
     <Compile Include="Functions\MathExtensions.cs" />
     <Compile Include="Functions\PathFinding.cs" />
     <Compile Include="Functions\ProbabilityFunctions.cs" />
+    <Compile Include="MapMatching\UpdateAnalytics.cs" />
     <Compile Include="MapMatching\MapMatcher.cs" />
     <Compile Include="MapMatching\MapMatchState.cs" />
     <Compile Include="MapMatching\MarkovProbabilityHelpers.cs" />
