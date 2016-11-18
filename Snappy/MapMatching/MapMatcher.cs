@@ -54,47 +54,47 @@ namespace Snappy.MapMatching
             {
                 foreach (var projection in nearbyRoadProjections)
                 {
-                    double emission = MarkovProbabilityHelpers.EmissionProbability(projection);
-                    newProbabilityVector[projection.Road] = emission;
+                    Emission emission = MarkovProbabilityHelpers.EmissionProbability(projection);
+                    analytics.Emissions[projection.Road] = emission;
+                    newProbabilityVector[projection.Road] = emission.Probability;
                     transitionMemory[projection.Road] = null;
                 }
-                analytics.EmissionProbabilities = newProbabilityVector;
             }
             else
             {
                 foreach (var projection in nearbyRoadProjections)
                 {
                     //Calculate emission probability
-                    double emission = MarkovProbabilityHelpers.EmissionProbability(projection);
-                    analytics.EmissionProbabilities[projection.Road] = emission;
+                    Emission emission = MarkovProbabilityHelpers.EmissionProbability(projection);
+                    analytics.Emissions[projection.Road] = emission;
 
                     //Calculate maximum transition from possible prev state 
-                    var maxCandidates = new Dictionary<DirectedRoad, double>();
+                    var maxCandidates = new Dictionary<Transition, double>();
                     foreach (var prevProjection in State.PrevNearbyRoadsAndProjections)
                     {
-                        double transition = MarkovProbabilityHelpers.TransitionProbability(Graph, prevProjection, projection);
-                        analytics.AllTransitionProbabilities[Tuple.Create(prevProjection.Road, projection.Road)] = transition;
-                        maxCandidates[prevProjection.Road] = transition * State.Probabilities[prevProjection.Road];
+                        Transition transition = MarkovProbabilityHelpers.TransitionProbability(Graph, prevProjection, projection);
+                        analytics.AllTransitions.Add(transition);
+                        maxCandidates[transition] = transition.Probability * State.Probabilities[prevProjection.Road];
                     }
                     var maxPair = maxCandidates.Aggregate((x, y) => x.Value > y.Value ? x : y);
 
-                    analytics.MostProbableTransitions[Tuple.Create(maxPair.Key, projection.Road)] = maxPair.Value;
+                    analytics.MaxTransitions[projection.Road] = maxPair.Key;
 
                     //probability update
-                    newProbabilityVector[projection.Road] = maxPair.Value * emission;
+                    newProbabilityVector[projection.Road] = maxPair.Value * emission.Probability;
 
                     //transition memory 
-                    transitionMemory[projection.Road] = maxPair.Key;
+                    transitionMemory[projection.Road] = maxPair.Key.From;
                 }
             }
 
             // CHECK IF UPDATE FAILED
-            if(analytics.EmissionProbabilities.GetSum() < double.Epsilon)
+            if(analytics.Emissions.Values.Select(x => x.Probability).Sum() < double.Epsilon)
             {
                 analytics.UpdateStatus = Enums.MapMatchUpdateStatus.ZeroEmissions;
                 return false;
             }            
-            if( analytics.AllTransitionProbabilities.Count > 0 && analytics.AllTransitionProbabilities.GetSum() < double.Epsilon)
+            if( analytics.MaxTransitions.Count > 0 && analytics.MaxTransitions.Values.Select(x => x.Probability).Sum() < double.Epsilon)
             {
                 analytics.UpdateStatus = Enums.MapMatchUpdateStatus.NoPossibleTransitions;
                 return false;
@@ -121,7 +121,10 @@ namespace Snappy.MapMatching
             // 4. 
             State.PrevNearbyRoadsAndProjections = nearbyRoadProjections;
 
+            analytics.NewProbabilityVector = State.Probabilities;
             analytics.UpdateStatus = Enums.MapMatchUpdateStatus.SuccessfullyUpdated;
+
+            Console.WriteLine(analytics.BuildSummaryString(5));
             return true;
         }
         public void Reset()

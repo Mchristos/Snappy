@@ -9,18 +9,18 @@ namespace Snappy.MapMatching
 {
     internal class MarkovProbabilityHelpers
     {
-        public static double EmissionProbability(ProjectToRoad projection)
+        public static Emission EmissionProbability(ProjectToRoad projection)
         {
-            return ProbabilityFunctions.HalfGaussian(projection.ProjectedDistance.DistanceInMeters, Constants.Sigma_Value_In_Meters_For_Emissions);
+            return new Emission(projection);
         }
 
-        public static double TransitionProbability(RoadGraph graph, ProjectToRoad projection1, ProjectToRoad projection2)
+        public static Transition TransitionProbability(RoadGraph graph, ProjectToRoad projection1, ProjectToRoad projection2)
         {
             DirectedRoad road1 = projection1.Road;
             DirectedRoad road2 = projection2.Road;
 
             //calculate on road distance
-            Distance onRoadDistance;
+            double onRoadDistanceInMeters;
             Distance startingDist = projection1.DistanceToEnd;
             Distance endDist = projection2.DistanceFromStart;
 
@@ -28,13 +28,13 @@ namespace Snappy.MapMatching
             if (road1.Equals(road2))
             {
                 //negative if going backwards along road
-                onRoadDistance = projection2.DistanceFromStart - projection1.DistanceFromStart;
+                onRoadDistanceInMeters = projection2.DistanceFromStart.DistanceInMeters - projection1.DistanceFromStart.DistanceInMeters;
             }
 
             // Roads are connected
             else if (road1.End == road2.Start)
             {
-                onRoadDistance = startingDist + endDist;
+                onRoadDistanceInMeters = startingDist.DistanceInMeters + endDist.DistanceInMeters;
             }
 
             // Try connect roads using Dijstra
@@ -48,19 +48,18 @@ namespace Snappy.MapMatching
                     {
                         connectingDist += road.Length;
                     }
-                    onRoadDistance = startingDist + connectingDist + endDist;
+                    onRoadDistanceInMeters = startingDist.DistanceInMeters + connectingDist.DistanceInMeters + endDist.DistanceInMeters;
                 }
                 else
                 {
                     //cannot connect up roads. transition probability is zero
-                    return 0;
+                    return Transition.ImpossibleTransition(road1, road2);
                 }
             }
 
             Distance haversineDistance = projection1.Coordinate.HaversineDistance(projection2.Coordinate);
 
-            double diffInMeters = Math.Abs(haversineDistance.DistanceInMeters - onRoadDistance.DistanceInMeters);
-            return ProbabilityFunctions.ExponentialDistribution(diffInMeters, Constants.Beta_For_Transitions_In_Meters);
+            return new Transition(onRoadDistanceInMeters, haversineDistance.DistanceInMeters, road1, road2);
         }
     }
 }

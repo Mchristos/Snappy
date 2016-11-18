@@ -42,17 +42,16 @@ namespace Snappy.ValueObjects
 
         private Distance(double distanceInMeters)
         {
-            //Allow negative distance
             this.DistanceInMeters = distanceInMeters;
-
-            //if (distanceInMeters >= 0)
-            //{
-            //    this.DistanceInMeters = distanceInMeters;
-            //}
-            //else
-            //{
-            //    throw new ArgumentException("Distance must be greater than or equal to zero.");
-            //}
+            //Don't allow negative distance
+            if (distanceInMeters >= 0)
+            {
+                this.DistanceInMeters = distanceInMeters;
+            }
+            else
+            {
+                throw new ArgumentException("Distance must be greater than or equal to zero.");
+            }
         }
 
         public static Distance FromMeters(double meters)

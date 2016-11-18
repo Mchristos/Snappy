@@ -68,6 +68,8 @@
     <Compile Include="Functions\MathExtensions.cs" />
     <Compile Include="Functions\PathFinding.cs" />
     <Compile Include="Functions\ProbabilityFunctions.cs" />
+    <Compile Include="MapMatching\Emission.cs" />
+    <Compile Include="MapMatching\Transition.cs" />
     <Compile Include="MapMatching\UpdateAnalytics.cs" />
     <Compile Include="MapMatching\MapMatcher.cs" />
     <Compile Include="MapMatching\MapMatchState.cs" />

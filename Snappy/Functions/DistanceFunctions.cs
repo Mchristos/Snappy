@@ -34,7 +34,7 @@ namespace Snappy.Functions
 
         public static Distance ComputeCumulativeDistanceFromStart(List<Coord> geometry, int position, Coord projection)
         {
-            if (position > geometry.Count - 1 || position < 0) { throw new ArgumentException("Invalid position in geometry"); }
+            if (position > geometry.Count - 2 || position < 0) { throw new ArgumentException("Invalid position in geometry"); }
 
             Distance result = Distance.Zero;
             for (int i = 1; i <= position; i++)
@@ -48,14 +48,14 @@ namespace Snappy.Functions
 
         public static Distance ComputeDistanceToEnd(List<Coord> geometry, int position, Coord projection)
         {
-            if (position > geometry.Count - 1 || position < 0) { throw new ArgumentException("Invalid position in geometry"); }
+            if (position > geometry.Count - 2 || position < 0) { throw new ArgumentException("Invalid position in geometry"); }
 
             Distance result = Distance.Zero;
-            for (int i = 1; i <= position; i++)
+            result += projection.HaversineDistance(geometry[position + 1]);
+            for (int i = position + 2 ; i < geometry.Count; i++)
             {
                 result += geometry[i].HaversineDistance(geometry[i - 1]);
             }
-            result += geometry[position].HaversineDistance(projection);
 
             return result;
         }

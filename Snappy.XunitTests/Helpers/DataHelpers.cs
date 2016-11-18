@@ -25,10 +25,6 @@ namespace Snappy.XunitTests.Helpers
 
             return result;
         }
-
-
-
-
         public static double[,] GeometryAB()
         {
             return new double[,]
@@ -92,6 +88,55 @@ namespace Snappy.XunitTests.Helpers
                  { -34.0569260774104, 18.5305023193359 },
                  { -34.0545083320242, 18.5143661499023 },
                  { -34.0451211375776, 18.4894752502441 }
+            };
+        }
+
+
+        ////////////////
+
+
+        // Graph where A->B, B->C is shorter than going A->C 
+        public static RoadGraph BuildGraphTwoShortRoadsOneLong()
+        {
+            RoadGraph result = new RoadGraph();
+
+            // Two short roads
+            DirectedRoad roadAB = new DirectedRoad(1000, 1001, StraightAB().ToCoordList(), "AB");
+            DirectedRoad roadBC = new DirectedRoad(1001, 1002, StraightBC().ToCoordList(), "BC");
+
+            //Long road
+            DirectedRoad roadAC = new DirectedRoad(1000, 1002, BigTriangleAC().ToCoordList(), "AC");
+
+            result.AddRoad(roadAB);
+            result.AddRoad(roadBC);
+            result.AddRoad(roadAC);
+
+
+            return result;
+        }
+        public static double[,] BigTriangleAC()
+        {
+            return new double[,]
+            {
+                { -32.1570124860701, 19.324951171875 }, //A
+                { -28.2753582818171, 20.423583984375 },
+                { -32.0732655510424, 20.98388671875 }  //C
+            };
+        }
+        public static double[,] StraightAB()
+        {
+            return new double[,]
+            {
+                { -32.1570124860701, 19.324951171875 }, // A
+                { -32.0732655510424, 20.0 }             // B
+            };
+        }
+        public static double[,] StraightBC()
+        {
+            return new double[,]
+            {
+                { -32.0732655510424, 20.0 },          //B
+                { -32.0732655510424, 20.98388671875 } //C
             };
         }
 

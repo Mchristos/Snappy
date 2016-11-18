@@ -1,6 +1,7 @@
 ﻿using Snappy.DataStructures;
 using Snappy.Functions;
 using Snappy.ValueObjects;
+using System.Linq;
 
 namespace Snappy.MapMatching
 {
@@ -19,27 +20,27 @@ namespace Snappy.MapMatching
             Coordinate = coord;
             Road = road;
 
-            int position;
+            int position = -1;
             Coord projection = coord.SnapToPolyline(road.Geometry, out position);
             IndexInRoad = position;
             Projection = projection;
             ProjectedDistance = coord.HaversineDistance(projection);
+
+            DistanceFromStart = computeDistanceFromStart();
+            DistanceToEnd = computeDistanceToEnd();
         }        
 
         // On-road distance from the beginning of the road to the projected point.
-        public Distance DistanceFromStart
-        {
-            get
-            {
-                return DistanceFunctions.ComputeCumulativeDistanceFromStart(Road.Geometry, IndexInRoad, Projection);
-            }
+        public Distance DistanceFromStart { get; set; }
+        public Distance DistanceToEnd { get; set; }
+
+        private Distance computeDistanceFromStart()
+        {           
+            return DistanceFunctions.ComputeCumulativeDistanceFromStart(Road.Geometry, IndexInRoad, Projection);            
         }
-        public Distance DistanceToEnd
-        {
-            get
-            {
-                return DistanceFunctions.ComputeDistanceToEnd(Road.Geometry, IndexInRoad, Projection);
-            }
+        private Distance computeDistanceToEnd()
+        {            
+            return DistanceFunctions.ComputeDistanceToEnd(Road.Geometry, IndexInRoad, Projection);            
         }
     }
 }
