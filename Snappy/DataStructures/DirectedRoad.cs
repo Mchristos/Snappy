@@ -2,9 +2,11 @@
 using Snappy.ValueObjects;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Snappy.DataStructures
 {
+    [DebuggerDisplay("{Name}")]
     public class DirectedRoad : IEquatable<DirectedRoad>
     {
         public long Start { get; set; }

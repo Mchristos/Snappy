@@ -92,12 +92,50 @@ namespace Snappy.Functions
             var lats = coordinates.Select(x => x.Latitude);
             var lngs = coordinates.Select(x => x.Longitude);
             var latMargin = MathExtensions.MetersToDeltaLat(marginInMeters);
-            //random reference latitude! 
+            //random reference latitude!
             var randomLat = coordinates.First().Latitude;
             var lngMargin = MathExtensions.MetersToDeltaLng(marginInMeters, randomLat);
 
             return new BoundingBox(lngs.Min() - lngMargin, lats.Min() - latMargin, lngs.Max() + lngMargin, lats.Max() + latMargin);
         }
 
+
+
+        public static List<Coord> TrimGeometryFrom(this List<Coord> road, Coord start)
+        {
+            int snapIndex;
+            Coord projection = start.SnapToPolyline(road, out snapIndex);
+            var result = new List<Coord>() { projection };
+            result.AddRange(road.Skip(snapIndex + 1));
+            return result;
+        }
+
+        public static List<Coord> TrimGeometryUntil(this List<Coord> road, Coord end)
+        {
+            int snapIndex;
+            Coord projection = end.SnapToPolyline(road, out snapIndex);
+            var result = road.Take(snapIndex + 1).ToList();
+            result.Add(projection);
+            return result;
+        }
+
+        public static List<Coord> TrimGeometryBetween(this List<Coord> road, Coord start, Coord end)
+        {
+            int startIndex;
+            Coord startProjection = start.SnapToPolyline(road, out startIndex);
+
+            int endIndex;
+            Coord endProjection = end.SnapToPolyline(road, out endIndex);
+
+            var result = new List<Coord>() { startProjection };
+            int count = endIndex - startIndex - 1;
+            if (count > 0)
+            {
+                List<Coord> middle = road.GetRange(startIndex + 1, count).ToList();
+                result.AddRange(middle);
+            }
+            result.Add(endProjection);
+            return result;
+        }
     }
 }

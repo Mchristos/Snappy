@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Snappy.ValueObjects
 {
+    [DebuggerDisplay("{DistanceInMeters} metres")]
     public class Distance : IComparable<Distance>, IEquatable<Distance>
     {
         private const int KilometersToMeters = 1000;

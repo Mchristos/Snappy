@@ -29,9 +29,14 @@ namespace Snappy.MapMatching
             State = MapMatchState.InitialState();
         }
 
-        public bool TryUpdateState(Coord coord, out UpdateAnalytics analytics, DateTime timeStamp = default(DateTime))
+        public bool TryUpdateState(Coord coord, out UpdateAnalytics analytics, DateTime timeStamp = default(DateTime), bool printUpdateAnalyticsToConsole = false)
         {
+            var stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+
+
             analytics = new UpdateAnalytics();
+            analytics.Coordinate = coord;
             analytics.PrevProbabilityVector = State.Probabilities;
 
             // Find nearby roads using search grid
@@ -43,6 +48,7 @@ namespace Snappy.MapMatching
                 return false;
             }
 
+            // Project coordinate onto roads 
             List<ProjectToRoad> nearbyRoadProjections = nearbyRoads.Select(x => new ProjectToRoad(coord, x)).ToList();
 
             // Initialize new transition memory 
@@ -70,10 +76,11 @@ namespace Snappy.MapMatching
 
                     //Calculate maximum transition from possible prev state 
                     var maxCandidates = new Dictionary<Transition, double>();
+                    analytics.AllTransitions[projection.Road] = new List<Transition>();
                     foreach (var prevProjection in State.PrevNearbyRoadsAndProjections)
                     {
                         Transition transition = MarkovProbabilityHelpers.TransitionProbability(Graph, prevProjection, projection);
-                        analytics.AllTransitions.Add(transition);
+                        analytics.AllTransitions[projection.Road].Add(transition);
                         maxCandidates[transition] = transition.Probability * State.Probabilities[prevProjection.Road];
                     }
                     var maxPair = maxCandidates.Aggregate((x, y) => x.Value > y.Value ? x : y);
@@ -105,6 +112,8 @@ namespace Snappy.MapMatching
             {
                 throw new Exception("SUM TING WONG");
             }
+            analytics.NonNormalizedProbabilityVector = newProbabilityVector;
+
             //UPDATE STATE: 
 
             // 1. Update probability vector
@@ -121,10 +130,16 @@ namespace Snappy.MapMatching
             // 4. 
             State.PrevNearbyRoadsAndProjections = nearbyRoadProjections;
 
-            analytics.NewProbabilityVector = State.Probabilities;
+            analytics.ProbabilityVector = State.Probabilities;
             analytics.UpdateStatus = Enums.MapMatchUpdateStatus.SuccessfullyUpdated;
+            stopwatch.Stop();
+            analytics.UpdateTimeInMilliseconds = stopwatch.Elapsed.TotalMilliseconds;
+            //Console.WriteLine(analytics.BuildSummaryString(5));
 
-            Console.WriteLine(analytics.BuildSummaryString(5));
+            if (printUpdateAnalyticsToConsole)
+            {
+                analytics.PrintUpdateSummary(12);
+            }
             return true;
         }
         public void Reset()

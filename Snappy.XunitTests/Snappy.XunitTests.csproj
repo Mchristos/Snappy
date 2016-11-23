@@ -65,6 +65,7 @@
     <Compile Include="ExtensionsTests.cs" />
     <Compile Include="GraphTests.cs" />
     <Compile Include="Helpers\DataHelpers.cs" />
+    <Compile Include="MapMatchingTests.cs" />
     <Compile Include="SearchGridTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -80,6 +81,7 @@
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

@@ -2,10 +2,12 @@
 using Snappy.DataStructures;
 using Snappy.Functions;
 using System;
+using System.Diagnostics;
 
 namespace Snappy.MapMatching
 {
     // Contains all the information of a possible transition, inclusing the transition probability
+    [DebuggerDisplay("{Probability}")]
     public class Transition
     {
         public double Probability { get; set; }
@@ -27,7 +29,14 @@ namespace Snappy.MapMatching
             
             // COMPUTE TRANSITION PROBABILITY
             double diffInMeters = Math.Abs(haversineDistanceInMeters - onRoadDistanceInMeters);
-            Probability = ProbabilityFunctions.ExponentialDistribution(diffInMeters, Constants.Beta_For_Transitions_In_Meters);
+            if(diffInMeters > Constants.Difference_Threshold_For_Transitions_In_Meters)
+            {
+                Probability = 0;
+            }
+            else
+            {
+                Probability = ProbabilityFunctions.ExponentialDistribution(diffInMeters, Constants.Beta_For_Transitions_In_Meters);
+            }
         }
 
         private Transition() { }

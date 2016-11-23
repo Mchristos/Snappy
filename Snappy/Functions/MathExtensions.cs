@@ -1,5 +1,7 @@
 ﻿using Snappy.Config;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Snappy.Functions
 {
@@ -32,5 +34,7 @@ namespace Snappy.Functions
             var radius = Constants.Earth_Radius_In_Meters * Math.Cos(refLatInRadians);
             return (meters / radius).ToDegrees();
         }
+
+
     }
 }

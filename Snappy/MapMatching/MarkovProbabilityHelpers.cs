@@ -30,8 +30,16 @@ namespace Snappy.MapMatching
                 //negative if going backwards along road
                 onRoadDistanceInMeters = projection2.DistanceFromStart.DistanceInMeters - projection1.DistanceFromStart.DistanceInMeters;
             }
+            // Road start or end on the same node
+            else if (road1.End == road2.End || road1.Start == road2.Start)
+            {
+     
+                    //make this transition impossible
+                    return Transition.ImpossibleTransition(road1, road2);
+                
+            }
 
-            // Roads are connected
+            // Roads are connected (can be same road in opposite direction)
             else if (road1.End == road2.Start)
             {
                 onRoadDistanceInMeters = startingDist.DistanceInMeters + endDist.DistanceInMeters;
