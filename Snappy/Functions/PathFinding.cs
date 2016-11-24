@@ -119,63 +119,79 @@ namespace Snappy.Functions
             }
             return result;
         }
+
+
+
+
+
+
+
+
+        //Jan's beastly dijstra 
+
+
+
+        //public static List<DirectedRoad> DijstraConnectRoads(this RoadGraph graph, DirectedRoad start, DirectedRoad end)
+        //{
+        //    //Djikstra <3
+        //    var openList = new C5.IntervalHeap<GraphSearch>();
+        //    var closedList = new Sys.HashSet<long>();
+        //    openList.Add(new GraphSearch(start, null, 0, start.Length.DistanceInMeters));
+        //    var currentItem = openList.FindMin();
+        //    openList.DeleteMin();
+
+        //    do
+        //    {
+        //        closedList.Add(currentItem.Edge.End);
+
+        //        var next = graph[currentItem.Edge.End];
+        //        if (currentItem.Depth < 1) //Depth setting
+        //        {
+        //            foreach (var neighbourEdge in next)
+        //            {
+        //                if (!closedList.Contains(neighbourEdge.End))
+        //                {
+        //                    openList.Add(new GraphSearch(
+        //                        neighbourEdge,
+        //                        currentItem,
+        //                        currentItem.Depth + 1,
+        //                        currentItem.Weight + neighbourEdge.Length.DistanceInMeters));
+        //                }
+        //            }
+        //        }
+        //        if (openList.IsEmpty)
+        //        {
+        //            break;
+        //        }
+        //        currentItem = openList.FindMin();
+        //        openList.DeleteMin();
+        //        if (currentItem.Edge.End == end.Start)
+        //        {
+        //            var result = GetResult(currentItem);
+        //            return result;
+        //        }
+        //    } while (!openList.IsEmpty);
+        //    return new List<DirectedRoad>();
+        //    //throw new System.Exception("Failed to find connection between two roads. Perhaps they are not connected?");
+        //}
+
+        //private static List<DirectedRoad> GetResult(GraphSearch currentItem)
+        //{
+        //    var results = new List<DirectedRoad>();
+
+        //    while (currentItem.Previous != null)
+        //    {
+        //        results.Add(currentItem.Edge);
+        //        currentItem = currentItem.Previous;
+        //    }
+
+        //    results.Reverse();
+        //    return results;
+        //}
+
+
+
     }
 
-    //public static List<DirectedRoad> DijstraConnectRoads(this RoadGraph graph, DirectedRoad start, DirectedRoad end)
-    //{
-    //    //Djikstra <3
-    //    var openList = new C5.IntervalHeap<GraphSearch>();
-    //    var closedList = new Sys.HashSet<long>();
-    //    openList.Add(new GraphSearch(start, null, 0, start.Length.DistanceInMeters));
-    //    var currentItem = openList.FindMin();
-    //    openList.DeleteMin();
 
-    //    do
-    //    {
-    //        closedList.Add(currentItem.Edge.End);
-
-    //        var next = graph[currentItem.Edge.End];
-    //        if (currentItem.Depth < 1) //Depth setting
-    //        {
-    //            foreach (var neighbourEdge in next)
-    //            {
-    //                if (!closedList.Contains(neighbourEdge.End))
-    //                {
-    //                    openList.Add(new GraphSearch(
-    //                        neighbourEdge,
-    //                        currentItem,
-    //                        currentItem.Depth + 1,
-    //                        currentItem.Weight + neighbourEdge.Length.DistanceInMeters));
-    //                }
-    //            }
-    //        }
-    //        if (openList.IsEmpty)
-    //        {
-    //            break;
-    //        }
-    //        currentItem = openList.FindMin();
-    //        openList.DeleteMin();
-    //        if (currentItem.Edge.End == end.Start)
-    //        {
-    //            var result = GetResult(currentItem);
-    //            return result;
-    //        }
-    //    } while (!openList.IsEmpty);
-    //    return new List<DirectedRoad>();
-    //    //throw new System.Exception("Failed to find connection between two roads. Perhaps they are not connected?");
-    //}
-
-    //private static List<DirectedRoad> GetResult(GraphSearch currentItem)
-    //{
-    //    var results = new List<DirectedRoad>();
-
-    //    while (currentItem.Previous != null)
-    //    {
-    //        results.Add(currentItem.Edge);
-    //        currentItem = currentItem.Previous;
-    //    }
-
-    //    results.Reverse();
-    //    return results;
-    //}
 }

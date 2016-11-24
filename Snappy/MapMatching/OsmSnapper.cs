@@ -79,18 +79,35 @@ namespace Snappy.MapMatching
             snapSummary.TotalSnapTimeInSeconds = totalTimeStopwatch.Elapsed.TotalSeconds;
             snapSummary.MeanUpdateTimeInMilliseconds = updateTimesInMilliseconds.Average();
 
-
+            // Print summary info to the console 
+            snapSummary.PrintSummaryToConsole();
 
 
             return result;
         }
 
+        /// <summary>
+        /// Gets the snapped geometry from the map matcher's current state (potentially after the map matcher breaks)   
+        /// </summary>
+        /// <param name="matcher"></param>
+        /// <param name="cleanShape"></param>
+        /// <param name="startIndex"></param>
+        /// <param name="breakIndex"></param>
+        /// <returns></returns>
         private List<Coord> GetSnappedSection(MapMatcher matcher, List<Coord> cleanShape, int startIndex, int breakIndex)
         {
             var sequenceSoFar = matcher.State.GetMostLikelySequence();
             var connectedSequence = PathFinding.DijstraConnectUpSequence(sequenceSoFar, matcher.Graph);
             return TrimRoadSequence(connectedSequence.Select(st => st.Geometry).ToList(), cleanShape[startIndex], cleanShape[breakIndex]);
         }
+
+        /// <summary>
+        /// Trims the first and last roads in a sequence of road geometries w.r.t. projections of starting / ending co-ordinates. 
+        /// </summary>
+        /// <param name="roads"></param>
+        /// <param name="startingCoord"></param>
+        /// <param name="endingCoord"></param>
+        /// <returns></returns>
         private List<Coord> TrimRoadSequence(List<List<Coord>> roads, Coord startingCoord, Coord endingCoord)
         {
             if (roads.Count == 1)
@@ -113,13 +130,7 @@ namespace Snappy.MapMatching
             return result;
         }
 
-        //private List<Coord> Trim(List<DirectedRoad> roads)
-        //{
-        //    var result = roads.SelectMany(x => x.Geometry.Take(x.Geometry.Count - 1)).ToList();
-        //    result.Add(roads.Last().Geometry.Last());
 
-        //    return result;
-        //}
     }
 
     public class SnapSummary
@@ -136,6 +147,18 @@ namespace Snappy.MapMatching
         public SnapSummary()
         {
             BreakCount = 0;
+        }
+
+        public void PrintSummaryToConsole()
+        {
+            Console.WriteLine("");
+            Console.WriteLine("------------------ Snap Summary ------------------");
+            Console.WriteLine("Total snap time:          {0} seconds \n", TotalSnapTimeInSeconds);
+            Console.WriteLine("Time to perform snapping: {0} seconds", PerformSnapTimeInSeconds);
+            Console.WriteLine("Updates performed:        {0}", UpdateCount);
+            Console.WriteLine("Mean update time:         {0}ms", MeanUpdateTimeInMilliseconds);
+            Console.WriteLine("Map match breaks:         {0}", BreakCount);
+            Console.WriteLine("--------------------------------------------------");
         }
     }
 }

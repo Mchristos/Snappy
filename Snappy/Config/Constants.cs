@@ -25,7 +25,7 @@ namespace Snappy.Config
 
         /****************************  threshold values ****************************/
         // don't try pathfind further than 1km!
-        public const double Dijstra_Upper_Search_Limit_In_Meters                    = 2000;
+        public const double Dijstra_Upper_Search_Limit_In_Meters                    = 5000;
         public const double Too_Fast_In_Kilometres_Per_Hour_For_Coordinate_Cleaning = 200;
         public const double Difference_Threshold_For_Transitions_In_Meters          = 1000;
         /****************************  ________________ ****************************/
