@@ -18,10 +18,17 @@ namespace Snappy.Functions
         public static bool DijstraTryFindPath(RoadGraph graph, long origin, long destination, out List<DirectedRoad> path)
         {
             path = new List<DirectedRoad>();
+            // If there are no outgoing roads from the origin
             if (!graph.ContainsKey(origin))
             {
                 return false;
             }
+            // If there are no incoming roads to the destination
+            if (!graph.InverseGraph.ContainsKey(destination))
+            {
+                return false;
+            }
+
             if (origin == destination)
             {
                 // correct path is empty
@@ -76,6 +83,13 @@ namespace Snappy.Functions
                 }
             }
 
+            if(currentSearch.Id != destination)
+            {
+                // Perhaps there is no path from origin to destination
+                // To throw exception or return false?? 
+                return false;
+            }
+
             //trace back path
             List<DirectedRoad> result = new List<DirectedRoad>();
             DijstraSearchItem tracer = currentSearch;
@@ -85,6 +99,15 @@ namespace Snappy.Functions
                 tracer = tracer.Prev;
             }
             result.Reverse();
+
+            if(result.First().Start != origin || result.Last().End != destination)
+            {
+                throw new Exception("connecting path does not correctly connect origin and destination");
+            }
+
+
+
+
             path = result;
             return true;
         }

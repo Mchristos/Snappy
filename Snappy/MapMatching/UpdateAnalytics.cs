@@ -49,10 +49,10 @@ namespace Snappy.MapMatching
             {
                 var info = new SummaryInfo
                 {
-                    StartEndNodeIds = string.Format("{0} -> {1}", road.Start % 1000, road.End % 1000),
+                    StartEndNodeIds = string.Format("{0} -> {1}", road.Start % 100000, road.End % 100000),
                     EmissionProbability = Round(Emissions[road].Probability),
                     EmissionDistance = Round(Emissions[road].Distance.DistanceInMeters),
-                    Probability = Round(ProbabilityVector[road]),
+                    Probability = ProbabilityVector[road],
                     NonNormalizedProbability = Round(NonNormalizedProbabilityVector[road])
                 };
 
@@ -92,12 +92,12 @@ namespace Snappy.MapMatching
                     {
                         info.FromName = "[NoName]";
                     }
-                    info.FromStartEndIds = string.Format("{0} -> {1}", fromRoad.Start % 1000, fromRoad.End % 1000);
+                    info.FromStartEndIds = string.Format("{0} -> {1}", fromRoad.Start % 100000, fromRoad.End % 100000);
                     info.TransitionProbability = Round(transition.Probability);
 
                     if (PrevProbabilityVector.ContainsKey(fromRoad))
                     {
-                        info.PrevProbOfFrom = Round(PrevProbabilityVector[fromRoad]);
+                        info.PrevProbOfFrom = PrevProbabilityVector[fromRoad];
                     }
                     else
                     {
@@ -156,19 +156,33 @@ namespace Snappy.MapMatching
 
             Console.WriteLine("UPDATE:  {0}ms ", Round(this.UpdateTimeInMilliseconds));
             Console.WriteLine("AT:  {0}, {1} \n", this.Coordinate.Latitude, this.Coordinate.Longitude);
-            if (count > 6)
-            {
-                var table1 = MakeTable(summaryInfo.Take(6).ToList());
-                var table2 = MakeTable(summaryInfo.Skip(6).ToList());
-                table1.Write(Format.MarkDown);
-                table2.Write(Format.MarkDown);    
-            }
-            else
-            {
-                var table = MakeTable(summaryInfo);
-                table.Write(ConsoleTables.Core.Format.MarkDown);
 
+            while(count > 6)
+            {
+                var table = MakeTable(summaryInfo.Take(6).ToList());
+                table.Write(Format.MarkDown);
+                summaryInfo = summaryInfo.Skip(6).ToList();
+                count = summaryInfo.Count;
             }
+
+            var lastTable = MakeTable(summaryInfo);
+            lastTable.Write(Format.MarkDown);
+
+
+
+            //if (count > 6)
+            //{
+            //    var table1 = MakeTable(summaryInfo.Take(6).ToList());
+            //    var table2 = MakeTable(summaryInfo.Skip(6).ToList());
+            //    table1.Write(Format.MarkDown);
+            //    table2.Write(Format.MarkDown);    
+            //}
+            //else
+            //{
+            //    var table = MakeTable(summaryInfo);
+            //    table.Write(ConsoleTables.Core.Format.MarkDown);
+
+            //}
 
 
 

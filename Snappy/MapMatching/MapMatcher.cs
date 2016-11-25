@@ -138,7 +138,7 @@ namespace Snappy.MapMatching
 
             if (printUpdateAnalyticsToConsole)
             {
-                analytics.PrintUpdateSummary(12);
+                analytics.PrintUpdateSummary(20);
             }
             return true;
         }

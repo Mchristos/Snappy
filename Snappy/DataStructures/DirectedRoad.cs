@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace Snappy.DataStructures
 {
-    [DebuggerDisplay("{Name}")]
+    [DebuggerDisplay("{Name} {Start} --> {End}")]
     public class DirectedRoad : IEquatable<DirectedRoad>
     {
         public long Start { get; set; }
