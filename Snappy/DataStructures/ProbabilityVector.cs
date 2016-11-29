@@ -21,6 +21,7 @@ namespace Snappy.DataStructures
                 this[item] = 1 / count;
             }
         }
+
         public ProbabilityVector<T> Normalize()
         {
             double sum = GetSum();
@@ -28,7 +29,7 @@ namespace Snappy.DataStructures
             {
                 var result = new ProbabilityVector<T>();
                 foreach (var key in this.Keys)
-                {
+                {      
                     result[key] = this[key] / sum;
                 }
                 return result;

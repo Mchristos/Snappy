@@ -15,6 +15,10 @@ namespace Snappy.MapMatching
         public Dictionary<DirectedRoad, Emission> Emissions { get; set; }
         // Stores the most likely transition to each nearby road at this step
         public Dictionary<DirectedRoad, Transition> MaxTransitions { get; set; }
+
+        // Stores propogated transition values: P(From)*P(Transition), i.e. the ACTUAL transition probability 
+        public Dictionary<Transition, double> PropogatedTransitionValues { get; set; }
+
         // Stores all transition candidates at this step 
         public Dictionary<DirectedRoad, List<Transition>> AllTransitions { get; set; }
         // Stores the probability vector before update 
@@ -37,6 +41,7 @@ namespace Snappy.MapMatching
             Emissions = new Dictionary<DirectedRoad, Emission>();
             MaxTransitions = new Dictionary<DirectedRoad, Transition>();
             AllTransitions = new Dictionary<DirectedRoad, List<Transition>>();
+            PropogatedTransitionValues = new Dictionary<Transition, double>();
         }
 
         public List<SummaryInfo> BuildInformationSummary()

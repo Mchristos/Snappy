@@ -36,5 +36,36 @@ namespace Snappy.ValueObjects
                 return new Coord((LatLowerBound + LatUpperBound) / 2, (LngLowerBound + LngUpperBound) / 2);
             }                
         }
+        public Coord TopLeft
+        {
+            get
+            {
+                return new Coord(LatUpperBound, LngLowerBound);
+            }
+        }
+
+        public Coord TopRight
+        {
+            get
+            {
+                return new Coord(LatUpperBound, LngUpperBound);
+            }
+        }
+
+        public Coord BottomLeft
+        {
+            get
+            {
+                return new Coord(LatLowerBound, LngLowerBound);
+            }
+        }
+
+        public Coord BottomRight
+        {
+            get
+            {
+                return new Coord(LatLowerBound, LngUpperBound);
+            }
+        }
     }
 }

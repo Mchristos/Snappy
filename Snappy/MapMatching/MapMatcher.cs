@@ -86,6 +86,7 @@ namespace Snappy.MapMatching
                     var maxPair = maxCandidates.Aggregate((x, y) => x.Value > y.Value ? x : y);
 
                     analytics.MaxTransitions[projection.Road] = maxPair.Key;
+                    analytics.PropogatedTransitionValues[maxPair.Key] = maxPair.Value;
 
                     //probability update
                     newProbabilityVector[projection.Road] = maxPair.Value * emission.Probability;
@@ -106,11 +107,16 @@ namespace Snappy.MapMatching
                 analytics.UpdateStatus = Enums.MapMatchUpdateStatus.NoPossibleTransitions;
                 return false;
             }
+            if(analytics.PropogatedTransitionValues.Count > 0 && analytics.PropogatedTransitionValues.Values.Sum() < double.Epsilon)
+            {
+                analytics.UpdateStatus = Enums.MapMatchUpdateStatus.NoPossibleTransitions;
+                return false;
+            }
 
 
             if(newProbabilityVector.GetSum() < double.Epsilon)
             {
-                throw new Exception("SUM TING WONG");
+                throw new Exception("New probability vector is zero everywhere. This problem should have been caught before this breakpoint is hit");
             }
             analytics.NonNormalizedProbabilityVector = newProbabilityVector;
 

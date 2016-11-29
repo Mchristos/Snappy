@@ -13,13 +13,14 @@ namespace Snappy.DataStructures
         public List<DirectedRoad> GetNearbyValues(Coord query, double radiusInMeters )
         {
             List<DirectedRoad> searchResult = GetNearbyValues(query.Longitude, query.Latitude);
+            //return searchResult;
             var result = new List<DirectedRoad>();
 
             foreach (var road in searchResult)
             {
                 int pos;
                 var projectedDistance = query.HaversineDistance(query.SnapToPolyline(road.Geometry, out pos));
-                if(projectedDistance.DistanceInMeters < radiusInMeters)
+                if (projectedDistance.DistanceInMeters < radiusInMeters)
                 {
                     result.Add(road);
                 }

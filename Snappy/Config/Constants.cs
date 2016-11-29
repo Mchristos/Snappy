@@ -11,7 +11,7 @@ namespace Snappy.Config
         //public const double Earth_Radius_In_Meters = 6372800;
         public const double Earth_Radius_In_Meters = 6371000;
         public const double GPS_Error_In_Meters = 20;
-        public const double Search_Grid_Grid_Size_In_Meters = 80;
+        public const double Search_Grid_Grid_Size_In_Meters = 50;
 
 
 
