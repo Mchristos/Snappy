@@ -15,7 +15,6 @@ namespace Snappy.DataStructures
             List<DirectedRoad> searchResult = GetNearbyValues(query.Longitude, query.Latitude);
             //return searchResult;
             var result = new List<DirectedRoad>();
-
             foreach (var road in searchResult)
             {
                 int pos;
@@ -25,6 +24,7 @@ namespace Snappy.DataStructures
                     result.Add(road);
                 }
             }
+            if(result.Count == 0) { return searchResult; }
             return result;
         }
 
