@@ -32,29 +32,13 @@ namespace Snappy.OpenStreetMaps
             if (!highwayTags && !railTags) { throw new ArgumentException("Either highway or rail tags must be true"); }
             if (highwayTags)
             {
-                wayQueryString += @"way[highway = motorway]({0},{1},{2},{3});
-                                                way[highway = trunk]({0},{1},{2},{3});
-                                                way[highway = primary]({0},{1},{2},{3});
-                                                way[highway = secondary]({0},{1},{2},{3});
-                                                way[highway = tertiary]({0},{1},{2},{3});
-                                                way[highway = unclassified]({0},{1},{2},{3});
-                                                way[highway = residential]({0},{1},{2},{3});
-                                                way[highway = service]({0},{1},{2},{3});
-                                                way[highway = motorway_link]({0},{1},{2},{3});
-                                                way[highway = trunk_link]({0},{1},{2},{3});
-                                                way[highway = primary_link]({0},{1},{2},{3});
-                                                way[highway = secondary_link]({0},{1},{2},{3});
-                                                way[highway = tertiary_link]({0},{1},{2},{3});
-                                                way[highway = living_street]({0},{1},{2},{3});
-                                                way[highway = bus_guideway	]({0},{1},{2},{3});
-                                                way[highway = road]({0},{1},{2},{3});
-                                                way[highway = track]({0},{1},{2},{3});";
+                wayQueryString += @"way[highway~""^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|service|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link|living_street|bus_guideway|road|track)$""]; ";
             }
             if (railTags)
             {
-                wayQueryString += "way[railway]({0},{1},{2},{3});";
+                wayQueryString += "way[railway];";
             }
-            string queryString = String.Format(@"/interpreter?data=[out:json];(" + wayQueryString + "); (._;>;);out;", bottom, left, top, right);
+            string queryString = String.Format(@"/interpreter?data=[bbox][out:json];(" + wayQueryString + "); (._;>;);out;&bbox={0},{1},{2},{3}", left, bottom, right, top);
             string url = apiUrl + queryString;
 
             Console.WriteLine("Calling Overpass API");
