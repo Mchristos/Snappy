@@ -152,46 +152,51 @@ namespace Snappy.MapMatching
         //}
         public void PrintUpdateSummary(int count = -1)
         {
-            var summaryInfo = BuildInformationSummary();
-            if (count < 0) count = summaryInfo.Count;
-            if (summaryInfo.Count < count) count = summaryInfo.Count;
-
-            summaryInfo = summaryInfo.Take(count).ToList();
-
 
             Console.WriteLine("UPDATE:  {0}ms ", Round(this.UpdateTimeInMilliseconds));
             Console.WriteLine("AT:  {0}, {1} \n", this.Coordinate.Latitude, this.Coordinate.Longitude);
 
-            while(count > 6)
+            switch (UpdateStatus)
             {
-                var table = MakeTable(summaryInfo.Take(6).ToList());
-                table.Write(Format.MarkDown);
-                summaryInfo = summaryInfo.Skip(6).ToList();
-                count = summaryInfo.Count;
+
+                case MapMatchUpdateStatus.SuccessfullyUpdated:
+                    var summaryInfo = BuildInformationSummary();
+                    if (count < 0) count = summaryInfo.Count;
+                    if (summaryInfo.Count < count) count = summaryInfo.Count;
+
+                    summaryInfo = summaryInfo.Take(count).ToList();
+
+
+
+                    while (count > 6)
+                    {
+                        var table = MakeTable(summaryInfo.Take(6).ToList());
+                        table.Write(Format.MarkDown);
+                        summaryInfo = summaryInfo.Skip(6).ToList();
+                        count = summaryInfo.Count;
+                    }
+
+                    var lastTable = MakeTable(summaryInfo);
+                    lastTable.Write(Format.MarkDown);
+                    break;
+                case MapMatchUpdateStatus.NoNearbyRoads:
+                    Console.WriteLine("FAILED: No nearby roads \n");
+                    break;
+                case MapMatchUpdateStatus.NoPossibleTransitions:
+                    Console.WriteLine("FAILED: No nearby roads \n");
+                    break;
+                case MapMatchUpdateStatus.ZeroEmissions:
+                    Console.WriteLine("FAILED: Zero emissions \n");
+                    break;
+
             }
 
-            var lastTable = MakeTable(summaryInfo);
-            lastTable.Write(Format.MarkDown);
-
-
-
-            //if (count > 6)
-            //{
-            //    var table1 = MakeTable(summaryInfo.Take(6).ToList());
-            //    var table2 = MakeTable(summaryInfo.Skip(6).ToList());
-            //    table1.Write(Format.MarkDown);
-            //    table2.Write(Format.MarkDown);    
-            //}
-            //else
-            //{
-            //    var table = MakeTable(summaryInfo);
-            //    table.Write(ConsoleTables.Core.Format.MarkDown);
-
-            //}
 
 
 
 
+            
+           
         }
 
         private ConsoleTables.Core.ConsoleTable MakeTable(List<SummaryInfo> tableData)

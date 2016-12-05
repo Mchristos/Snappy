@@ -45,6 +45,13 @@ namespace Snappy.MapMatching
             {
                 // If no nearby roads, update fails. 
                 analytics.UpdateStatus = Enums.MapMatchUpdateStatus.NoNearbyRoads;
+                stopwatch.Stop();
+                analytics.UpdateTimeInMilliseconds = stopwatch.ElapsedMilliseconds;             
+                if (printUpdateAnalyticsToConsole)
+                {
+                    analytics.PrintUpdateSummary();
+                }
+                
                 return false;
             }
 
@@ -100,16 +107,34 @@ namespace Snappy.MapMatching
             if(analytics.Emissions.Values.Select(x => x.Probability).Sum() < double.Epsilon)
             {
                 analytics.UpdateStatus = Enums.MapMatchUpdateStatus.ZeroEmissions;
+                stopwatch.Stop();
+                analytics.UpdateTimeInMilliseconds = stopwatch.ElapsedMilliseconds;
+                if (printUpdateAnalyticsToConsole)
+                {
+                    analytics.PrintUpdateSummary();
+                }
                 return false;
             }            
             if( analytics.MaxTransitions.Count > 0 && analytics.MaxTransitions.Values.Select(x => x.Probability).Sum() < double.Epsilon)
             {
                 analytics.UpdateStatus = Enums.MapMatchUpdateStatus.NoPossibleTransitions;
+                stopwatch.Stop();
+                analytics.UpdateTimeInMilliseconds = stopwatch.ElapsedMilliseconds;
+                if (printUpdateAnalyticsToConsole)
+                {
+                    analytics.PrintUpdateSummary();
+                }
                 return false;
             }
             if(analytics.PropogatedTransitionValues.Count > 0 && analytics.PropogatedTransitionValues.Values.Sum() < double.Epsilon)
             {
                 analytics.UpdateStatus = Enums.MapMatchUpdateStatus.NoPossibleTransitions;
+                stopwatch.Stop();
+                analytics.UpdateTimeInMilliseconds = stopwatch.ElapsedMilliseconds;
+                if (printUpdateAnalyticsToConsole)
+                {
+                    analytics.PrintUpdateSummary();
+                }
                 return false;
             }
 
