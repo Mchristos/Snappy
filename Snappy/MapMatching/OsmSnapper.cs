@@ -1,4 +1,5 @@
-﻿using Snappy.Enums;
+﻿using Snappy.Config;
+using Snappy.Enums;
 using Snappy.Functions;
 using Snappy.OpenStreetMaps;
 using Snappy.ValueObjects;
@@ -12,15 +13,20 @@ namespace Snappy.MapMatching
     {
         private string _overpassApi { get; set; }
 
-        public OsmSnapper(OverpassApi overpassApi)
+        private bool _printConsoleUpdates { get; set; }
+
+        public OsmSnapper(OverpassApi overpassApi, bool printConsoleUpdates = false)
         {
+            _printConsoleUpdates = printConsoleUpdates;
             if (overpassApi == OverpassApi.LocalDelorean) _overpassApi = Config.Urls.DeloreanGray;
             else if (overpassApi == OverpassApi.MainOverpass) _overpassApi = Config.Urls.MainOverpassApi;
             else throw new ArgumentException("Invalid overpass enum");
         }
 
         public List<List<Coord>> SnapDat(List<Coord> coords)
-        {
+        {            
+            if(coords.Count < 2) { throw new ArgumentException("Sequence has less than two co-ordinates."); }
+
             var result = new List<List<Coord>>();
 
             // Initialize total snap time stopwatch
@@ -28,7 +34,7 @@ namespace Snappy.MapMatching
             totalTimeStopwatch.Start();
 
             // Build graph in region and initialize map matcher
-            BoundingBox boundingBox = coords.GetBoundingBox();
+            BoundingBox boundingBox = coords.GetBoundingBox(Constants.GPS_Error_In_Meters);
             var osmGraph = OsmGraphBuilder.BuildInRegion(_overpassApi, boundingBox);
             var mapMatcher = new MapMatcher(osmGraph);
 
@@ -51,7 +57,7 @@ namespace Snappy.MapMatching
             {
                 Coord coord = cleanedCoords[i];
                 UpdateAnalytics analytics;
-                if (mapMatcher.TryUpdateState(coord, out analytics))
+                if (mapMatcher.TryUpdateState(coord, out analytics, printUpdateAnalyticsToConsole : _printConsoleUpdates))
                 {
                     updateTimesInMilliseconds.Add(analytics.UpdateTimeInMilliseconds);
                 }
