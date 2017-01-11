@@ -15,17 +15,30 @@ namespace Snappy.MapMatching
 
         private bool _printConsoleUpdates { get; set; }
 
-        public OsmSnapper(OverpassApi overpassApi, bool printConsoleUpdates = false)
+        public BoundingBox SnappingArea { get; set; }
+
+        public MapMatcher MapMatcher { get; set; }
+
+        public OsmSnapper(OverpassApi overpassApi, BoundingBox boundingBox = null,  bool printConsoleUpdates = false)
         {
             _printConsoleUpdates = printConsoleUpdates;
-            if (overpassApi == OverpassApi.LocalDelorean) _overpassApi = Config.Urls.DeloreanGray;
+
+            if (overpassApi == OverpassApi.DeloreanGray) _overpassApi = Config.Urls.DeloreanGray;
             else if (overpassApi == OverpassApi.MainOverpass) _overpassApi = Config.Urls.MainOverpassApi;
             else throw new ArgumentException("Invalid overpass enum");
+
+            if(boundingBox != null)
+            {
+                SnappingArea = boundingBox;
+                // Build graph in bounding box and initialize map matcher (involves computing search grid data structure) 
+                var graph = OsmGraphBuilder.BuildInRegion(_overpassApi, boundingBox);
+                MapMatcher = new MapMatcher(graph);
+            }
         }
 
-        public List<List<Coord>> SnapDat(List<Coord> coords)
-        {            
-            if(coords.Count < 2) { throw new ArgumentException("Sequence has less than two co-ordinates."); }
+        public List<List<Coord>> SnapDat(List<Coord> coords, List<DateTime> timeStamps = null, bool highwayTags = true, bool railTags = true)
+        {
+            if (coords.Count < 2) { throw new ArgumentException("Sequence has less than two co-ordinates."); }
 
             var result = new List<List<Coord>>();
 
@@ -33,23 +46,32 @@ namespace Snappy.MapMatching
             var totalTimeStopwatch = new System.Diagnostics.Stopwatch();
             totalTimeStopwatch.Start();
 
-            // Build graph in region and initialize map matcher
-            BoundingBox boundingBox = coords.GetBoundingBox(Constants.GPS_Error_In_Meters);
-            var osmGraph = OsmGraphBuilder.BuildInRegion(_overpassApi, boundingBox);
-            var mapMatcher = new MapMatcher(osmGraph);
+
+            MapMatcher mapMatcher;//= new MapMatcher(osmGraph);
+            if(MapMatcher == null)
+            {
+                // Build graph in region and initialize map matcher
+                BoundingBox boundingBox = coords.GetBoundingBox(Constants.GPS_Error_In_Meters);
+                var osmGraph = OsmGraphBuilder.BuildInRegion(_overpassApi, boundingBox, highwayTags, railTags);
+
+                mapMatcher = new MapMatcher(osmGraph);
+            }
+            else
+            {
+                mapMatcher = MapMatcher.Clone();
+            }
 
             // Initialize snap time stopwatch
             var performSnapStopwatch = new System.Diagnostics.Stopwatch();
             performSnapStopwatch.Start();
 
             // Clean input co-ordinates
-            var cleanedCoords = coords.GetCleanedCoordinates();
+            var cleanedCoords = coords.GetCleanedCoordinates(timeStamps);
 
             // Initialize snap summary & list for update times
             var snapSummary = new SnapSummary();
             snapSummary.UpdateCount = cleanedCoords.Count;
             var updateTimesInMilliseconds = new List<double>();
-
 
             int startIndex = 0;
             int breakIndex = 0;
@@ -57,7 +79,7 @@ namespace Snappy.MapMatching
             {
                 Coord coord = cleanedCoords[i];
                 UpdateAnalytics analytics;
-                if (mapMatcher.TryUpdateState(coord, out analytics, printUpdateAnalyticsToConsole : _printConsoleUpdates))
+                if (mapMatcher.TryUpdateState(coord, out analytics, printUpdateAnalyticsToConsole: _printConsoleUpdates))
                 {
                     updateTimesInMilliseconds.Add(analytics.UpdateTimeInMilliseconds);
                 }
@@ -67,33 +89,32 @@ namespace Snappy.MapMatching
                     breakIndex = i;
                     var shape = GetSnappedSection(mapMatcher, cleanedCoords, startIndex, breakIndex);
                     result.Add(shape);
-                    startIndex = i+ 1;
+                    startIndex = i + 1;
                     mapMatcher.Reset();
                 }
             }
 
-            if(startIndex < cleanedCoords.Count - 1)
+            if (startIndex < cleanedCoords.Count - 1)
             {
-                var lastShape = GetSnappedSection(mapMatcher, cleanedCoords, startIndex, cleanedCoords.Count-1);
+                var lastShape = GetSnappedSection(mapMatcher, cleanedCoords, startIndex, cleanedCoords.Count - 1);
                 result.Add(lastShape);
             }
-            
+
             // Snap summary values
             performSnapStopwatch.Stop();
-            snapSummary.PerformSnapTimeInSeconds = performSnapStopwatch.Elapsed.TotalSeconds; 
+            snapSummary.PerformSnapTimeInSeconds = performSnapStopwatch.Elapsed.TotalSeconds;
             totalTimeStopwatch.Stop();
             snapSummary.TotalSnapTimeInSeconds = totalTimeStopwatch.Elapsed.TotalSeconds;
             snapSummary.MeanUpdateTimeInMilliseconds = updateTimesInMilliseconds.Average();
 
-            // Print summary info to the console 
+            // Print summary info to the console
             snapSummary.PrintSummaryToConsole();
-
 
             return result;
         }
 
         /// <summary>
-        /// Gets the snapped geometry from the map matcher's current state (potentially after the map matcher breaks)   
+        /// Gets the snapped geometry from the map matcher's current state (potentially after the map matcher breaks)
         /// </summary>
         /// <param name="matcher"></param>
         /// <param name="cleanShape"></param>
@@ -108,7 +129,7 @@ namespace Snappy.MapMatching
         }
 
         /// <summary>
-        /// Trims the first and last roads in a sequence of road geometries w.r.t. projections of starting / ending co-ordinates. 
+        /// Trims the first and last roads in a sequence of road geometries w.r.t. projections of starting / ending co-ordinates.
         /// </summary>
         /// <param name="roads"></param>
         /// <param name="startingCoord"></param>
@@ -135,8 +156,6 @@ namespace Snappy.MapMatching
             result.AddRange(endingShape.Skip(1));
             return result;
         }
-
-
     }
 
     public class SnapSummary

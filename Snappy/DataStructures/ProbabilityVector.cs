@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Snappy.DataStructures
 {
     public class ProbabilityVector<T> : Dictionary<T, double>
     {
-
-        public ProbabilityVector() : base() { }    
+        public ProbabilityVector() : base()
+        {
+        }
 
         public ProbabilityVector(IEnumerable<T> collection) : base()
-        {            
-            if(collection == null ) { throw new NullReferenceException("Collection is null"); }
+        {
+            if (collection == null) { throw new NullReferenceException("Collection is null"); }
             int count = collection.Count();
             if (count == 0) { throw new ArgumentException("Collection is empty"); }
             foreach (var item in collection)
@@ -29,7 +28,7 @@ namespace Snappy.DataStructures
             {
                 var result = new ProbabilityVector<T>();
                 foreach (var key in this.Keys)
-                {      
+                {
                     result[key] = this[key] / sum;
                 }
                 return result;
@@ -37,12 +36,14 @@ namespace Snappy.DataStructures
             else
             {
                 throw new Exception("Probability vector is zero everywhere : cannot normalize ");
-            }            
+            }
         }
+
         public double GetSum()
         {
             return this.Values.Sum();
         }
+
         public T GetMostProbableItem()
         {
             if (this.Count == 0) { throw new Exception("Probability vector is empty"); }

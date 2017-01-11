@@ -28,7 +28,7 @@ namespace Snappy.MapMatching
             Graph = graph;
             State = MapMatchState.InitialState();
         }
-
+        public MapMatcher() { }
         public bool TryUpdateState(Coord coord, out UpdateAnalytics analytics, DateTime timeStamp = default(DateTime), bool printUpdateAnalyticsToConsole = false)
         {
             var stopwatch = new System.Diagnostics.Stopwatch();
@@ -176,6 +176,15 @@ namespace Snappy.MapMatching
         public void Reset()
         {
             State.Reset();
+        }
+
+        public MapMatcher Clone()
+        {
+            MapMatcher result = new MapMatcher();
+            result.Graph = Graph;
+            result.SearchGrid = SearchGrid.Clone();
+            result.State = MapMatchState.InitialState();
+            return result;
         }
     }
 }

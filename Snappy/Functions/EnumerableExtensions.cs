@@ -60,5 +60,42 @@ namespace Snappy.Functions
             }
             return result;
         }
+
+        /// <summary>
+        /// Computes the closure of a set in a superset with a given equivalence relation. That is, it computes an "expanded" version of the input set by recursively adding any points in the superset that are equivalent to something in the given set. 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="input"></param>
+        /// <param name="superset"></param>
+        /// <param name="equivalenceRelation"> </param>
+        /// <returns></returns>
+        public static HashSet<T> Closure<T>(this HashSet<T> input, HashSet<T> superset, Func<T, T, bool> equivalenceRelation)
+        {
+            // Initialize result 
+            HashSet<T> result = new HashSet<T>();
+
+            // Add any items in the superset that are equivalent to something in the input 
+            foreach (var item1 in input)
+            {
+                foreach (var item2 in superset)
+                {
+                    if (equivalenceRelation(item1, item2))
+                    {
+                        result.Add(item2);
+                    }
+                }
+            }
+
+            // Recursively take the closure of the result if the result was bigger than the input. If it did not "grow", and the recursion.
+            bool expanded = (result.Count > input.Count);
+            if (expanded)
+            {
+                return result.Closure(superset, equivalenceRelation);
+            }
+            else
+            {
+                return result;
+            }
+        }
     }
 }

@@ -88,5 +88,12 @@ namespace Snappy.Functions
                 return DouglasPeucker(first, epsilon).Concat(DouglasPeucker(tail, epsilon).GetRange(1, DouglasPeucker(tail, epsilon).Count - 1)).ToList();
             }
         }
+        public static Snappy.ValueObjects.Coord ComputeCenter(this IEnumerable<Coord> coords)
+        {
+            var meanLat = coords.Select(x => x.Latitude).Average();
+            var meanLng = coords.Select(x => x.Longitude).Average();
+            return new Snappy.ValueObjects.Coord(meanLat, meanLng);
+        }
+
     }
 }

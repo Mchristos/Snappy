@@ -63,26 +63,38 @@ namespace Snappy.GmapHelpers
         }
 
         //PlotPoint adds a marker of the specified type to the specified overlay. The overlay itself is not added to map!
-        public static void PlotPoint(Coord point, GMarkerGoogleType type, GMapOverlay overlay)
-        {
-            PointLatLng pt = new PointLatLng(point.Latitude, point.Longitude);
-            PlotPoint(pt, type, overlay);
-        }
-        public static void PlotPoint(double latitude, double longitude, GMarkerGoogleType type, GMapOverlay overlay)
+        public static GMarkerGoogle PlotPoint(double latitude, double longitude, GMarkerGoogleType type, GMapOverlay overlay)
         {
             PointLatLng point = new PointLatLng(latitude, longitude);
-            PlotPoint(point, type, overlay);
+            return PlotPoint(point, type, overlay);
         }
-        public static void PlotPoint(Coord coord, Bitmap pic, GMapOverlay overlay)
+        public static GMarkerGoogle PlotPoint(double latitude, double longitude, GMarkerGoogleType type, GMapOverlay overlay, string toolTipText = "")
+        {
+            PointLatLng point = new PointLatLng(latitude, longitude);
+            return PlotPoint(point, type, overlay, toolTipText);
+        }
+        public static GMarkerGoogle PlotPoint(Coord coord, GMarkerGoogleType type, GMapOverlay overlay)
+        {
+            PointLatLng point = new PointLatLng(coord.Latitude, coord.Longitude);
+            return PlotPoint(point, type, overlay);
+        }
+        public static GMarkerGoogle PlotPoint(Coord coord, Bitmap pic, GMapOverlay overlay)
         {
             PointLatLng point = new PointLatLng(coord.Latitude, coord.Longitude);
             GMarkerGoogle marker = new GMarkerGoogle(point, pic);
             overlay.Markers.Add(marker);
+            return marker;
         }
-        public static void PlotPoint(PointLatLng point, GMarkerGoogleType type, GMapOverlay overlay)
+
+        public static GMarkerGoogle PlotPoint(PointLatLng point, GMarkerGoogleType type, GMapOverlay overlay, string toolTipText = null)
         {
             GMarkerGoogle marker = new GMarkerGoogle(point, type);
+            if (toolTipText != null)
+            {
+                marker.ToolTipText = toolTipText;
+            }
             overlay.Markers.Add(marker);
+            return marker;
         }
 
         //Adds set of straight line (as polygons) to the specified overlay

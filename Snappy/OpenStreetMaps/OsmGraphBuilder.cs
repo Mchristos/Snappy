@@ -9,9 +9,9 @@ namespace Snappy.OpenStreetMaps
 {
     public static class OsmGraphBuilder
     {
-        public static RoadGraph BuildInRegion(string apiUrl, BoundingBox boundingBox)
+        public static RoadGraph BuildInRegion(string apiUrl, BoundingBox boundingBox, bool highwayTags = true, bool railTags = true)
         {
-            string response = OsmHelpers.GetOsmResponse(apiUrl, boundingBox);
+            string response = OsmHelpers.GetOsmResponse(apiUrl, boundingBox, highwayTags, railTags);
 
             // Build graph from API response 
 

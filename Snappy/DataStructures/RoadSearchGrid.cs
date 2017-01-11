@@ -9,7 +9,7 @@ namespace Snappy.DataStructures
         public RoadSearchGrid(double left, double bottom, double gridSizeX, double gridSizeY, int cellCountX, int cellCountY) : base(left, bottom, gridSizeX, gridSizeY, cellCountX, cellCountY)
         {
         }
-
+        
         public List<DirectedRoad> GetNearbyValues(Coord query, double radiusInMeters )
         {
             List<DirectedRoad> searchResult = GetNearbyValues(query.Longitude, query.Latitude);
@@ -54,5 +54,22 @@ namespace Snappy.DataStructures
                 }
             }
         }
+
+        // This should be inplemented for the base class too :( 
+        public RoadSearchGrid Clone()
+        {
+            var result = new RoadSearchGrid(Left, Bottom, GridSizeX, GridSizeY, CellCountX, CellCountY);
+            foreach (var int1 in this.Keys)
+            {
+                var dict = new Dictionary<int, List<DirectedRoad>>();
+                foreach (var int2 in this[int1].Keys)
+                {
+                    dict[int2] = this[int1][int2];
+                }
+                result[int1] = dict;
+            }
+            return result;
+        }
+
     }
 }

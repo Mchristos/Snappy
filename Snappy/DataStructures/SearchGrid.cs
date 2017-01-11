@@ -64,20 +64,5 @@ namespace Snappy.DataStructures
             }
             return result.ToList();
         }
-
-        public SearchGrid<T> Clone()
-        {
-            var result = new SearchGrid<T>(Left, Bottom, GridSizeX, GridSizeY, CellCountX, CellCountY);
-            foreach (var int1 in this.Keys)
-            {
-                var dict = new Dictionary<int, List<T>>();
-                foreach (var int2 in this[int1].Keys)
-                {
-                    dict[int2] = this[int1][int2];
-                }
-                result[int1] = dict;
-            }
-            return result;
-        }
     }
 }

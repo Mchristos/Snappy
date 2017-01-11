@@ -9,7 +9,7 @@ namespace Snappy.Enums
     public enum OverpassApi
     {
         None,
-        MainOverpass, 
-        LocalDelorean
+        MainOverpass,
+        DeloreanGray
     }
 }

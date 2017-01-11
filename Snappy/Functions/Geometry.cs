@@ -74,31 +74,41 @@ namespace Snappy.Functions
             }
             else throw new Exception("Failed to find the index of the closest projection to the stop");
         }
-
         /// <summary>
-        /// Gets bounding box bounding a set of co-ordinates
+        /// Projects a point onto a polyline, not taking into account the curvature of earth.
+        /// (assumes the points are in a 2d cartesian space).
         /// </summary>
-        /// <param name="coordinates"></param>
+        /// <param name="point"> Input point </param>
+        /// <param name="shape"> Polyline </param>
+        /// <param name="minIndex"> Only points beyond this index are considered </param>
+        /// <param name="position"> Zero-based index of the segment in the polyline that it got snapped onto (considering the polyline as a sequence of segments). </param>
         /// <returns></returns>
-        public static BoundingBox GetBoundingBox(this IEnumerable<Coord> coordinates)
+        public static Coord SnapToPolyline(this Coord point, List<Coord> shape, int minIndex, out int position)
         {
-            var lats = coordinates.Select(x => x.Latitude);
-            var lngs = coordinates.Select(x => x.Longitude);
-            return new BoundingBox(lngs.Min(), lats.Min(), lngs.Max(), lats.Max());
+            if (minIndex > shape.Count - 2) { throw new ArgumentException("minIndex must be less than the highest index into the shape"); }
+
+            double leastDistance = double.PositiveInfinity;
+            int leastIndex = -1;
+            Coord leastProjection = null;
+            for (int i = minIndex + 1; i < shape.Count; i++)
+            {
+                Coord projection = point.SnapToSegment(shape[i - 1], shape[i]);
+                double distance = point.HaversineDistance(projection).DistanceInMeters;
+                if (distance < leastDistance)
+                {
+                    leastDistance = distance;
+                    leastIndex = i - 1;
+                    leastProjection = projection;
+                }
+            }
+
+            if (leastIndex > -1)
+            {
+                position = leastIndex;
+                return leastProjection;
+            }
+            else throw new Exception("Failed to find the index of the closest projection to the stop");
         }
-
-        public static BoundingBox GetBoundingBox(this IEnumerable<Coord> coordinates, double marginInMeters)
-        {
-            var lats = coordinates.Select(x => x.Latitude);
-            var lngs = coordinates.Select(x => x.Longitude);
-            var latMargin = MathExtensions.MetersToDeltaLat(marginInMeters);
-            //random reference latitude!
-            var randomLat = coordinates.First().Latitude;
-            var lngMargin = MathExtensions.MetersToDeltaLng(marginInMeters, randomLat);
-
-            return new BoundingBox(lngs.Min() - lngMargin, lats.Min() - latMargin, lngs.Max() + lngMargin, lats.Max() + latMargin);
-        }
-
 
 
         public static List<Coord> TrimGeometryFrom(this List<Coord> road, Coord start)
