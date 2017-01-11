@@ -61,7 +61,7 @@ namespace Snappy.Functions
         }
 
         /// <summary>
-        /// Gets all cells (inclusive) surrounding a cell in a grid of given dimentions
+        /// Gets all cells (inclusive) surrounding a cell in a grid of given dimensions
         /// </summary>
         /// <param name="cell"> cell in grid in form [x,y] </param>
         /// <param name="gridDimensionX"></param>

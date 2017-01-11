@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snappy", "Snappy\Snappy.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snappy.XunitTests", "Snappy.XunitTests\Snappy.XunitTests.csproj", "{C79C50F8-04F2-418D-97ED-70C05124036D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snappy.GmapHelpers", "Snappy.GmapHelpers\SnappyVisualizer\Snappy.GmapHelpers.csproj", "{8554FAA7-9C0C-4208-BC1D-68D41AC81966}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{C79C50F8-04F2-418D-97ED-70C05124036D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C79C50F8-04F2-418D-97ED-70C05124036D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C79C50F8-04F2-418D-97ED-70C05124036D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8554FAA7-9C0C-4208-BC1D-68D41AC81966}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8554FAA7-9C0C-4208-BC1D-68D41AC81966}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8554FAA7-9C0C-4208-BC1D-68D41AC81966}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8554FAA7-9C0C-4208-BC1D-68D41AC81966}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

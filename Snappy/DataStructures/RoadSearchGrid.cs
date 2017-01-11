@@ -24,7 +24,10 @@ namespace Snappy.DataStructures
                     result.Add(road);
                 }
             }
-            if(result.Count == 0) { return searchResult; }
+            if (result.Count == 0)
+            {
+                return searchResult;
+            }
             return result;
         }
 
