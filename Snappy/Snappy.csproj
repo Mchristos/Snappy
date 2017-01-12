@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="Clustering\Cluster.cs" />
     <Compile Include="Clustering\DBSCAN.cs" />
+    <Compile Include="Clustering\EstimatedCMeans.cs" />
     <Compile Include="Clustering\FuzzyCMeans.cs" />
     <Compile Include="Clustering\PointSearchGrid.cs" />
     <Compile Include="Clustering\RecursiveDensityBased.cs" />
