@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Clustering\Cluster.cs" />
+    <Compile Include="Clustering\DBSCAN.cs" />
     <Compile Include="Clustering\FuzzyCMeans.cs" />
     <Compile Include="Clustering\PointSearchGrid.cs" />
     <Compile Include="Clustering\RecursiveDensityBased.cs" />
@@ -96,6 +97,7 @@
     <Compile Include="OpenStreetMaps\Way.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ValueObjects\BoundingBox.cs" />
+    <Compile Include="ValueObjects\CartesianPoint3D.cs" />
     <Compile Include="ValueObjects\Coord.cs" />
     <Compile Include="ValueObjects\Distance.cs" />
   </ItemGroup>
