@@ -87,8 +87,11 @@ namespace Snappy.MapMatching
                 {
                     snapSummary.BreakCount += 1;
                     breakIndex = i;
-                    var shape = GetSnappedSection(mapMatcher, cleanedCoords, startIndex, breakIndex);
-                    result.Add(shape);
+                    if(startIndex < breakIndex)
+                    {
+                        var shape = GetSnappedSection(mapMatcher, cleanedCoords, startIndex, breakIndex);
+                        result.Add(shape);
+                    }
                     startIndex = i + 1;
                     mapMatcher.Reset();
                 }
