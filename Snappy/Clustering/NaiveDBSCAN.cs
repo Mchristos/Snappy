@@ -6,11 +6,11 @@ using System.Linq;
 
 namespace Snappy.Clustering
 {
-    public class RecursiveDensityBased<T>
+    public class NaiveDBSCAN<T>
     {
         private double _radius { get; set; }
 
-        public RecursiveDensityBased(double radiusInMeters)
+        public NaiveDBSCAN(double radiusInMeters)
         {
             _radius = radiusInMeters;
         }

@@ -7,29 +7,29 @@ using Snappy.ValueObjects;
 
 namespace Snappy.Clustering
 {
-    class EstimatedCMeans<T>
+    public class EstimatedCMeans<T>
     {
         //private List<T> _data { get; set; }
-        public int RegionRadius { get; set; }
-        public int ClusterRaduis { get; set; }
+        public double RegionRadius { get; set; }
+        public double ClusterRaduis { get; set; }
         public int DBSCANMinPOints { get; set; }
         //Func<T, Coord> getCoord { get; set; }
         public double Fuzzyness { get; set; } //Default to 1.85
         public int MaxItters { get; set; } //Default to 30
 
-        public EstimatedCMeans(int RegionRadius, int ClusterRaduis, double Fuzzyness, int MaxItters, int DBSCANminPOints)
+        public EstimatedCMeans(double regionRadius, double clusterRaduis, double fuzzyness, int maxIters, int DBSCANminPoints)
         {
-            this.RegionRadius = RegionRadius;
-            this.ClusterRaduis = ClusterRaduis;
-            this.Fuzzyness = Fuzzyness;
-            this.MaxItters = MaxItters;
-            this.DBSCANMinPOints = DBSCANMinPOints;
+            this.RegionRadius = regionRadius;
+            this.ClusterRaduis = clusterRaduis;
+            this.Fuzzyness = fuzzyness;
+            this.MaxItters = maxIters;
+            this.DBSCANMinPOints = DBSCANminPoints;
         }            
 
         public List<Cluster<T>> Cluster(List<T> data, Func<T, Coord> getCoord) 
         {
-            var DensityClustering = new DBSCAN<T>(data, DBSCANMinPOints, RegionRadius);
-            List<Cluster<T>> LargeRegions = DensityClustering.Cluster(getCoord);
+            var DensityClustering = new DBSCAN<T>(DBSCANMinPOints, RegionRadius);
+            List<Cluster<T>> LargeRegions = DensityClustering.Cluster(data, getCoord);
             List<Cluster<T>> ListofClusters = new List<Cluster<T>>();
 
            // Fuzzy Cmeans on Region
@@ -37,8 +37,8 @@ namespace Snappy.Clustering
             Parallel.ForEach(LargeRegions, smallerRegion =>
             {
                 var smallerCluster = smallerRegion.Values;
-                var DensityClusterinngP2 = new DBSCAN<T>(smallerCluster, DBSCANMinPOints, ClusterRaduis);
-                var EstimatedC = DensityClusterinngP2.Cluster(getCoord);
+                var DensityClusterinngP2 = new DBSCAN<T>(DBSCANMinPOints, ClusterRaduis);
+                var EstimatedC = DensityClusterinngP2.Cluster(smallerCluster, getCoord);
                 int expectedC = EstimatedC.Count();
 
                 var fuzzyC = new FuzzyCMeans<T>(expectedC, Fuzzyness, MaxItters);

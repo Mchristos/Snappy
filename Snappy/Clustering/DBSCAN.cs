@@ -12,31 +12,30 @@ namespace Snappy.Clustering
     {
         private List<T> _data { get; set; }        
         private int _MinPts { get; set; }
-        private double _eps { get; set; }
+        private double _radius { get; set; }
         private Func<Coord, Coord, double> GetDistance { get; set; }
         private Func<Coord, Coord, int, bool> IsCloseEnough { get; set; }
 
-        public DBSCAN(List<T> data, int MinPts, double eps, Func<Coord,Coord,double> distanceFunction, Func<Coord, Coord, int, bool> isCloseEnough)
+        public DBSCAN(int minPoints, double radius, Func<Coord, Coord, double> distanceFunction, Func<Coord, Coord, int, bool> isCloseEnough)
         {
-            _data = data;
-            _MinPts = MinPts;
-            _eps = eps;
+            _MinPts = minPoints;
+            _radius = radius;
             GetDistance = distanceFunction;
             IsCloseEnough = isCloseEnough;
         }
 
-        public DBSCAN(List<T> data, int MinPts, double eps)
+        public DBSCAN(int MinPts, double radius)
         {
-            _data = data;
             _MinPts = MinPts;
-            _eps = eps;
+            _radius = radius;
             //GetDistance = (a, b) => DistanceFunctions.HaversineDistance(a, b).DistanceInMeters;
             GetDistance = (a, b) => DistanceFunctions.FasterHaversineDistance(a, b);            
-            IsCloseEnough = (a, b, c) => (GetDistance(a, b) < (Math.Exp(-Math.Pow(c,0.6)/40) * _eps));
+            IsCloseEnough = (a, b, c) => (GetDistance(a, b) < (Math.Exp(-Math.Pow(c,0.6)/40) * _radius));
         }
 
-        public List<Cluster<T>> Cluster(Func<T, Coord> getCoordinate)
+        public List<Cluster<T>> Cluster(List<T> data, Func<T, Coord> getCoordinate)
         {
+            _data = data;
             List<Cluster<T>> returnList = new List<Cluster<T>>();
             Dictionary<Coord, bool> visitedDictionary = new Dictionary<Coord, bool>();
             foreach(T d in _data)
