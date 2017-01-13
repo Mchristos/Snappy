@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Snappy.ValueObjects
 {
-    public class Coord
+    public class Coord : IEquatable<Coord>
     {
         public double Latitude { get; set; }
 
