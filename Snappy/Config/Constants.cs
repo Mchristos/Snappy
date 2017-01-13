@@ -14,6 +14,7 @@ namespace Snappy.Config
         public const double GPS_Error_In_Meters = 20;
         public const double Search_Grid_Grid_Size_In_Meters = 50;
 
+        public const double Distance_Threshold_For_Point_Equality_In_Meters = 0.1;
 
 
         /****************************  map matching parameters ****************************/
