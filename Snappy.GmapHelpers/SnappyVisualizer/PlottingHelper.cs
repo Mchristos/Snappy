@@ -2,19 +2,17 @@
 using GMap.NET.WindowsForms;
 using GMap.NET.WindowsForms.Markers;
 using Snappy.DataStructures;
+using Snappy.Functions;
 using Snappy.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Snappy.GmapHelpers
 {
     public static class PlottingHelper
     {
-
         /***************** plotting functionality *****************/
 
         // These functions add markers/polygons to a specified GMapOverlay.
@@ -41,6 +39,7 @@ namespace Snappy.GmapHelpers
                 overlay.Markers.Add(marker);
             }
         }
+
         public static void PlotArrayAsPoints(Coord[] dataArray, GMarkerGoogleType type, GMapOverlay overlay)
         {
             int numberOfPoints = dataArray.GetLength(0);
@@ -51,6 +50,7 @@ namespace Snappy.GmapHelpers
                 overlay.Markers.Add(marker);
             }
         }
+
         public static void PlotArrayAsPoints(Coord[] dataArray, Bitmap markerPicture, GMapOverlay overlay)
         {
             int numberOfPoints = dataArray.GetLength(0);
@@ -62,22 +62,24 @@ namespace Snappy.GmapHelpers
             }
         }
 
-        //PlotPoint adds a marker of the specified type to the specified overlay. The overlay itself is not added to map!
         public static GMarkerGoogle PlotPoint(double latitude, double longitude, GMarkerGoogleType type, GMapOverlay overlay)
         {
             PointLatLng point = new PointLatLng(latitude, longitude);
             return PlotPoint(point, type, overlay);
         }
+
         public static GMarkerGoogle PlotPoint(double latitude, double longitude, GMarkerGoogleType type, GMapOverlay overlay, string toolTipText = "")
         {
             PointLatLng point = new PointLatLng(latitude, longitude);
             return PlotPoint(point, type, overlay, toolTipText);
         }
+
         public static GMarkerGoogle PlotPoint(Coord coord, GMarkerGoogleType type, GMapOverlay overlay)
         {
             PointLatLng point = new PointLatLng(coord.Latitude, coord.Longitude);
             return PlotPoint(point, type, overlay);
         }
+
         public static GMarkerGoogle PlotPoint(Coord coord, Bitmap pic, GMapOverlay overlay)
         {
             PointLatLng point = new PointLatLng(coord.Latitude, coord.Longitude);
@@ -97,7 +99,6 @@ namespace Snappy.GmapHelpers
             return marker;
         }
 
-        //Adds set of straight line (as polygons) to the specified overlay
         public static void PlotArrayAsLines(double[,] dataArray, Color color, GMapOverlay overlay)
         {
             for (int i = 1; i < dataArray.GetLength(0); i++)
@@ -172,8 +173,6 @@ namespace Snappy.GmapHelpers
             }
         }
 
-
-
         //public static void PlotGraph(RoadGraph graph, GMapOverlay overlay, Color color)
         //{
         //    foreach (var intersection in graph.Values)
@@ -207,7 +206,6 @@ namespace Snappy.GmapHelpers
             overlay.Routes.Add(root);
         }
 
-
         public static void PlotGrid<T>(SearchGrid<T> grid, GMapOverlay overlay, Color color = default(Color), int width = 3, int opacity = 255)
         {
             double bottomLat = grid.Bottom;
@@ -230,7 +228,6 @@ namespace Snappy.GmapHelpers
                 lng = lng + grid.GridSizeX;
             }
 
-
             double leftLng = grid.Left;
             double rightLng = grid.Left + grid.CellCountX * grid.GridSizeX;
             double lat = grid.Bottom;
@@ -252,7 +249,6 @@ namespace Snappy.GmapHelpers
             }
         }
 
-
         public static void PlotBoundingBox(BoundingBox box, GMapOverlay overlay, Color color = default(Color), int width = 3)
         {
             List<GMapPolygon> polygons = new List<GMapPolygon>();
@@ -260,7 +256,6 @@ namespace Snappy.GmapHelpers
             List<Coord> left = new List<Coord> { box.BottomLeft, box.TopLeft };
             GMapPolygon leftSide = new GMapPolygon(left.Select(x => x.ToPointLatLng()).ToList(), "");
             polygons.Add(leftSide);
-
 
             List<Coord> top = new List<Coord> { box.TopLeft, box.TopRight };
             var topSide = new GMapPolygon(top.Select(x => x.ToPointLatLng()).ToList(), "");
@@ -286,7 +281,29 @@ namespace Snappy.GmapHelpers
 
                 overlay.Polygons.Add(polygon);
             }
+        }
 
+        public static void PlotCircle(Coord center, double radiusInMeters, int segments, GMapOverlay overlay)
+        {
+            List<PointLatLng> gpollist = new List<PointLatLng>();
+
+            double seg = Math.PI * 2 / segments;
+            double deltaLat = MathExtensions.MetersToDeltaLat(radiusInMeters);
+            double deltaLng = MathExtensions.MetersToDeltaLng(radiusInMeters, center.Latitude);
+
+            for (int i = 0; i < segments; i++)
+            {
+                double theta = seg * i;
+                double lat = center.Latitude + Math.Cos(theta) * deltaLat;
+                double lng = center.Longitude + Math.Sin(theta) * deltaLng;
+
+                PointLatLng gpoi = new PointLatLng(lat,lng);
+
+                gpollist.Add(gpoi);
+            }
+            GMapPolygon gpol = new GMapPolygon(gpollist, "pol");
+
+            overlay.Polygons.Add(gpol);
         }
     }
 }
