@@ -1,13 +1,13 @@
 ﻿using Snappy.Config;
 using Snappy.Enums;
 using Snappy.Functions;
-using Snappy.OpenStreetMaps;
+using Snappy.MapMatching;
 using Snappy.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Snappy.MapMatching
+namespace Snappy.OpenStreetMaps
 {
     public class OsmSnapper
     {
@@ -17,7 +17,7 @@ namespace Snappy.MapMatching
 
         public BoundingBox SnappingArea { get; set; }
 
-        public MapMatcher MapMatcher { get; set; }
+        public OsmMapMatcher MapMatcher { get; set; }
 
         public OsmSnapper(OverpassApi overpassApi, BoundingBox boundingBox = null,  bool printConsoleUpdates = false)
         {
@@ -32,7 +32,7 @@ namespace Snappy.MapMatching
                 SnappingArea = boundingBox;
                 // Build graph in bounding box and initialize map matcher (involves computing search grid data structure) 
                 var graph = OsmGraphBuilder.BuildInRegion(_overpassApi, boundingBox);
-                MapMatcher = new MapMatcher(graph);
+                MapMatcher = new OsmMapMatcher(graph);
             }
         }
 
@@ -47,14 +47,14 @@ namespace Snappy.MapMatching
             totalTimeStopwatch.Start();
 
 
-            MapMatcher mapMatcher;//= new MapMatcher(osmGraph);
+            OsmMapMatcher mapMatcher;//= new MapMatcher(osmGraph);
             if(MapMatcher == null)
             {
                 // Build graph in region and initialize map matcher
                 BoundingBox boundingBox = coords.GetBoundingBox(Constants.GPS_Error_In_Meters);
                 var osmGraph = OsmGraphBuilder.BuildInRegion(_overpassApi, boundingBox, highwayTags, railTags);
 
-                mapMatcher = new MapMatcher(osmGraph);
+                mapMatcher = new OsmMapMatcher(osmGraph);
             }
             else
             {
@@ -124,7 +124,7 @@ namespace Snappy.MapMatching
         /// <param name="startIndex"></param>
         /// <param name="breakIndex"></param>
         /// <returns></returns>
-        private List<Coord> GetSnappedSection(MapMatcher matcher, List<Coord> cleanShape, int startIndex, int breakIndex)
+        private List<Coord> GetSnappedSection(OsmMapMatcher matcher, List<Coord> cleanShape, int startIndex, int breakIndex)
         {
             var sequenceSoFar = matcher.State.GetMostLikelySequence();
             var connectedSequence = PathFinding.DijstraConnectUpSequence(sequenceSoFar, matcher.Graph);

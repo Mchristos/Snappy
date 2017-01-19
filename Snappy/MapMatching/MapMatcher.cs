@@ -1,20 +1,18 @@
-﻿using Snappy.DataStructures;
+﻿using Snappy.Config;
+using Snappy.DataStructures;
 using Snappy.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Snappy.Config;
 
 namespace Snappy.MapMatching
 {
     /// <summary>
-    /// Keeps track of the location of a vehicle in a road network via a probabilistic model. 
+    /// Keeps track of the location of a vehicle in a road network via a probabilistic model.
     /// Its state encodes the proability of being on a given (directed) road in the network.
     /// The state can be updated by inputting co-ordinates.
     /// </summary>
-    public class MapMatcher
+    public class MapMatcher<T>
     {
         public RoadGraph Graph { get; set; }
 
@@ -22,10 +20,25 @@ namespace Snappy.MapMatching
 
         public MapMatchState State { get; set; }
 
-        public MapMatcher(RoadGraph graph)
+        private Dictionary<string, T> _dataByRoadId { get; set; }
+
+        public MapMatcher(List<T> data, Func<T, DirectedRoad> dataToRoad)
         {
-            SearchGrid = SearchGridFactory.ComputeSearchGrid(graph, Constants.Search_Grid_Grid_Size_In_Meters);
+            //Build graph
+            _dataByRoadId = new Dictionary<string, T>();
+            var graph = new RoadGraph();
+            foreach (var datum in data)
+            {
+                var road = dataToRoad(datum);
+                graph.AddRoad(road);
+                _dataByRoadId[road.Squid] = datum;
+            }
             Graph = graph;
+
+            // Compute search grid (for accessing nearby roads)
+            SearchGrid = SearchGridFactory.ComputeSearchGrid(graph, Constants.Search_Grid_Grid_Size_In_Meters);
+
+            // Initialize state
             State = MapMatchState.InitialState();
         }
         public MapMatcher() { }
@@ -34,36 +47,35 @@ namespace Snappy.MapMatching
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
-
             analytics = new UpdateAnalytics();
             analytics.Coordinate = coord;
             analytics.PrevProbabilityVector = State.Probabilities;
 
             // Find nearby roads using search grid
             List<DirectedRoad> nearbyRoads = SearchGrid.GetNearbyValues(coord, Constants.Search_Grid_Grid_Size_In_Meters);
-            if(nearbyRoads.Count == 0)
+            if (nearbyRoads.Count == 0)
             {
-                // If no nearby roads, update fails. 
+                // If no nearby roads, update fails.
                 analytics.UpdateStatus = Enums.MapMatchUpdateStatus.NoNearbyRoads;
                 stopwatch.Stop();
-                analytics.UpdateTimeInMilliseconds = stopwatch.ElapsedMilliseconds;             
+                analytics.UpdateTimeInMilliseconds = stopwatch.ElapsedMilliseconds;
                 if (printUpdateAnalyticsToConsole)
                 {
                     analytics.PrintUpdateSummary();
                 }
-                
+
                 return false;
             }
 
-            // Project coordinate onto roads 
+            // Project coordinate onto roads
             List<ProjectToRoad> nearbyRoadProjections = nearbyRoads.Select(x => new ProjectToRoad(coord, x)).ToList();
 
-            // Initialize new transition memory 
+            // Initialize new transition memory
             var transitionMemory = new Dictionary<DirectedRoad, DirectedRoad>();
-            // Initialize new probability vector 
+            // Initialize new probability vector
             var newProbabilityVector = new ProbabilityVector<DirectedRoad>();
 
-            if(State.PrevCoord == null)
+            if (State.PrevCoord == null)
             {
                 foreach (var projection in nearbyRoadProjections)
                 {
@@ -81,7 +93,7 @@ namespace Snappy.MapMatching
                     Emission emission = MarkovProbabilityHelpers.EmissionProbability(projection);
                     analytics.Emissions[projection.Road] = emission;
 
-                    //Calculate maximum transition from possible prev state 
+                    //Calculate maximum transition from possible prev state
                     var maxCandidates = new Dictionary<Transition, double>();
                     analytics.AllTransitions[projection.Road] = new List<Transition>();
                     foreach (var prevProjection in State.PrevNearbyRoadsAndProjections)
@@ -98,13 +110,13 @@ namespace Snappy.MapMatching
                     //probability update
                     newProbabilityVector[projection.Road] = maxPair.Value * emission.Probability;
 
-                    //transition memory 
+                    //transition memory
                     transitionMemory[projection.Road] = maxPair.Key.From;
                 }
             }
 
             // CHECK IF UPDATE FAILED
-            if(analytics.Emissions.Values.Select(x => x.Probability).Sum() < double.Epsilon)
+            if (analytics.Emissions.Values.Select(x => x.Probability).Sum() < double.Epsilon)
             {
                 analytics.UpdateStatus = Enums.MapMatchUpdateStatus.ZeroEmissions;
                 stopwatch.Stop();
@@ -114,8 +126,8 @@ namespace Snappy.MapMatching
                     analytics.PrintUpdateSummary();
                 }
                 return false;
-            }            
-            if( analytics.MaxTransitions.Count > 0 && analytics.MaxTransitions.Values.Select(x => x.Probability).Sum() < double.Epsilon)
+            }
+            if (analytics.MaxTransitions.Count > 0 && analytics.MaxTransitions.Values.Select(x => x.Probability).Sum() < double.Epsilon)
             {
                 analytics.UpdateStatus = Enums.MapMatchUpdateStatus.NoPossibleTransitions;
                 stopwatch.Stop();
@@ -126,7 +138,7 @@ namespace Snappy.MapMatching
                 }
                 return false;
             }
-            if(analytics.PropogatedTransitionValues.Count > 0 && analytics.PropogatedTransitionValues.Values.Sum() < double.Epsilon)
+            if (analytics.PropogatedTransitionValues.Count > 0 && analytics.PropogatedTransitionValues.Values.Sum() < double.Epsilon)
             {
                 analytics.UpdateStatus = Enums.MapMatchUpdateStatus.NoPossibleTransitions;
                 stopwatch.Stop();
@@ -138,27 +150,26 @@ namespace Snappy.MapMatching
                 return false;
             }
 
-
-            if(newProbabilityVector.GetSum() < double.Epsilon)
+            if (newProbabilityVector.GetSum() < double.Epsilon)
             {
                 throw new Exception("New probability vector is zero everywhere. This problem should have been caught before this breakpoint is hit");
             }
             analytics.NonNormalizedProbabilityVector = newProbabilityVector;
 
-            //UPDATE STATE: 
+            //UPDATE STATE:
 
             // 1. Update probability vector
-            newProbabilityVector =  newProbabilityVector.Normalize();
+            newProbabilityVector = newProbabilityVector.Normalize();
             State.Probabilities = newProbabilityVector;
 
-            //2. Add to transition memory 
+            //2. Add to transition memory
             State.TransitionMemory.Add(transitionMemory);
 
-            //3. Update prev coord and date 
+            //3. Update prev coord and date
             State.PrevCoord = coord;
-            State.PrevTime = timeStamp;            
+            State.PrevTime = timeStamp;
 
-            // 4. 
+            // 4.
             State.PrevNearbyRoadsAndProjections = nearbyRoadProjections;
 
             analytics.ProbabilityVector = State.Probabilities;
@@ -173,17 +184,21 @@ namespace Snappy.MapMatching
             }
             return true;
         }
+
         public void Reset()
         {
             State.Reset();
         }
 
-        public MapMatcher Clone()
+        public List<MapState<T>> GetMostLikelySequence()
         {
-            MapMatcher result = new MapMatcher();
-            result.Graph = Graph;
-            result.SearchGrid = SearchGrid.Clone();
-            result.State = MapMatchState.InitialState();
+            var result = new List<MapState<T>>();
+            var roadSequence = State.GetMostLikelySequence();
+            foreach (var road in roadSequence)
+            {
+                var mapState = new MapState<T>(road, _dataByRoadId[road.Squid]);
+                result.Add(mapState);
+            }
             return result;
         }
     }

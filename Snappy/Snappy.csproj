@@ -80,12 +80,12 @@
     <Compile Include="Functions\PathFinding.cs" />
     <Compile Include="Functions\ProbabilityFunctions.cs" />
     <Compile Include="MapMatching\Emission.cs" />
+    <Compile Include="MapMatching\MapState.cs" />
     <Compile Include="MapMatching\Transition.cs" />
     <Compile Include="MapMatching\UpdateAnalytics.cs" />
     <Compile Include="MapMatching\MapMatcher.cs" />
     <Compile Include="MapMatching\MapMatchState.cs" />
     <Compile Include="MapMatching\MarkovProbabilityHelpers.cs" />
-    <Compile Include="MapMatching\OsmSnapper.cs" />
     <Compile Include="MapMatching\ProjectToRoad.cs" />
     <Compile Include="MapMatching\SearchGridFactory.cs" />
     <Compile Include="OpenStreetMaps\DisplayNameSerializationBinder.cs" />
@@ -94,7 +94,9 @@
     <Compile Include="OpenStreetMaps\Element.cs" />
     <Compile Include="OpenStreetMaps\OsmGraphBuilder.cs" />
     <Compile Include="OpenStreetMaps\OsmHelpers.cs" />
+    <Compile Include="OpenStreetMaps\OsmMapMatcher.cs" />
     <Compile Include="OpenStreetMaps\OsmNode.cs" />
+    <Compile Include="OpenStreetMaps\OsmSnapper.cs" />
     <Compile Include="OpenStreetMaps\Way.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ValueObjects\BoundingBox.cs" />
