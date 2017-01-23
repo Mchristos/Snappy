@@ -92,15 +92,13 @@ namespace Snappy.XunitTests
             Assert.Equal(Results.CorrectSequenceOfRoadNames, sequence.ToArray());
         }
 
-        private Tuple<long, long> getIdTupleFromName(string name)
+        private Tuple<string, string> getIdTupleFromName(string name)
         {
-            // takes name, e.g. "ab", and gets two ids, 'a' --> 97, 'b' --> 98
+            // takes name, e.g. "ab", and gets two ids, "a" and "b" 
             var split = name.ToArray();
-            char first = split.First();
-            char last = split.Last();
-            long id1 = Convert.ToInt64(first);
-            long id2 = Convert.ToInt64(last);
-            return new Tuple<long, long>(id1, id2);
+            string first = split.First().ToString();
+            string last = split.Last().ToString();
+            return new Tuple<string, string>(first, last);
         }
 
     }

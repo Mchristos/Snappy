@@ -4,13 +4,13 @@ using System.Linq;
 
 namespace Snappy.DataStructures
 {
-    public class RoadGraph : Dictionary<long, List<DirectedRoad>>
+    public class RoadGraph : Dictionary<string, List<DirectedRoad>>
     {
         public RoadGraph() : base()
         {
-            _nodeLookup = new Dictionary<long, Coord>();
+            _nodeLookup = new Dictionary<string, Coord>();
             _roadLookup = new Dictionary<string, DirectedRoad>();
-            _inverseGraph = new Dictionary<long, List<DirectedRoad>>();
+            _inverseGraph = new Dictionary<string, List<DirectedRoad>>();
         }
 
         public void AddRoad(DirectedRoad road)
@@ -38,15 +38,15 @@ namespace Snappy.DataStructures
         }
 
         // Look up node position by id
-        private Dictionary<long, Coord> _nodeLookup { get; set; }
+        private Dictionary<string, Coord> _nodeLookup { get; set; }
 
         // Look up road by squid
         private Dictionary<string, DirectedRoad> _roadLookup { get; set; }
 
         // Look up number of incoming roads to given node
-        private Dictionary<long, List<DirectedRoad>> _inverseGraph { get; set; }
+        private Dictionary<string, List<DirectedRoad>> _inverseGraph { get; set; }
 
-        public Dictionary<long, Coord> Nodes
+        public Dictionary<string, Coord> Nodes
         {
             get
             {
@@ -63,7 +63,7 @@ namespace Snappy.DataStructures
         }
 
         // Stores INCOMING roads to a given node
-        public Dictionary<long, List<DirectedRoad>> InverseGraph
+        public Dictionary<string, List<DirectedRoad>> InverseGraph
         {
             get
             {

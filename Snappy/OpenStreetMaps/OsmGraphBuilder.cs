@@ -31,7 +31,7 @@ namespace Snappy.OpenStreetMaps
                 foreach (var subway in subways)
                 {
                     var roadShape = subway.Select(id => nodeLookup[id].ToCoord()).ToList();
-                    DirectedRoad road = new DirectedRoad(subway.First(), subway.Last(), roadShape, wayName);
+                    DirectedRoad road = new DirectedRoad(subway.First().ToString(), subway.Last().ToString(), roadShape, wayName);
                     graph.AddRoad(road);
                     if (!way.IsOneWay())
                     {

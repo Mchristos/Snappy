@@ -15,7 +15,7 @@ namespace Snappy.Functions
         /// <param name="origin"></param>
         /// <param name="destination"></param>
         /// <returns></returns>
-        public static bool DijstraTryFindPath(RoadGraph graph, long origin, long destination, out List<DirectedRoad> path)
+        public static bool DijstraTryFindPath(RoadGraph graph, string origin, string destination, out List<DirectedRoad> path)
         {
             path = new List<DirectedRoad>();
             // If there are no outgoing roads from the origin
@@ -38,7 +38,7 @@ namespace Snappy.Functions
             DijstraSearchItem currentSearch = new DijstraSearchItem(origin, null, null, 0);
 
             IntervalHeap<DijstraSearchItem> heap = new IntervalHeap<DijstraSearchItem>();
-            var itemLookup = new Dictionary<long, DijstraSearchItem>();
+            var itemLookup = new Dictionary<string, DijstraSearchItem>();
             heap.Add(currentSearch);
             itemLookup[origin] = currentSearch;
 

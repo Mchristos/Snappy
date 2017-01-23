@@ -54,7 +54,7 @@ namespace Snappy.MapMatching
             {
                 var info = new SummaryInfo
                 {
-                    StartEndNodeIds = string.Format("{0} -> {1}", road.Start % 100000, road.End % 100000),
+                    StartEndNodeIds = string.Format("{0} -> {1}", road.Start , road.End ),
                     EmissionProbability = Round(Emissions[road].Probability),
                     EmissionDistance = Round(Emissions[road].Distance.DistanceInMeters),
                     Probability = ProbabilityVector[road],
@@ -97,7 +97,7 @@ namespace Snappy.MapMatching
                     {
                         info.FromName = "[NoName]";
                     }
-                    info.FromStartEndIds = string.Format("{0} -> {1}", fromRoad.Start % 100000, fromRoad.End % 100000);
+                    info.FromStartEndIds = string.Format("{0} -> {1}", fromRoad.Start, fromRoad.End);
                     info.TransitionProbability = Round(transition.Probability);
 
                     if (PrevProbabilityVector.ContainsKey(fromRoad))

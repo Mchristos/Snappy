@@ -4,7 +4,7 @@ namespace Snappy.DataStructures
 {
     public class DijstraSearchItem : IComparable<DijstraSearchItem>
     {
-        public long Id;
+        public string Id;
 
         //remembers the road leading to this item (since different roads can come from the same previous node id)
         public DirectedRoad PrevRoad { get; set; }
@@ -13,7 +13,7 @@ namespace Snappy.DataStructures
 
         public double Distance { get; set; }
 
-        public DijstraSearchItem(long id, DirectedRoad prevRoad, DijstraSearchItem prev, double dist)
+        public DijstraSearchItem(string id, DirectedRoad prevRoad, DijstraSearchItem prev, double dist)
         {
             //if(prevRoad.Start != prev.Id) { throw new ArgumentException("Not correct."); }
             Id = id;

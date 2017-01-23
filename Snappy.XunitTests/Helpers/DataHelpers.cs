@@ -13,10 +13,10 @@ namespace Snappy.XunitTests.Helpers
         {
             RoadGraph result = new RoadGraph();
 
-            DirectedRoad roadAB = new DirectedRoad(1000, 1001, GeometryAB().ToCoordList(), "AB");
-            DirectedRoad roadAC = new DirectedRoad(1000, 1002, GeometryAC().ToCoordList(), "AC");
-            DirectedRoad roadAD = new DirectedRoad(1000, 1003, GeometryAD().ToCoordList(), "AD");
-            DirectedRoad roadDB = new DirectedRoad(1003, 1001, GeometryDB().ToCoordList(), "DB");
+            DirectedRoad roadAB = new DirectedRoad("1000", "1001", GeometryAB().ToCoordList(), "AB");
+            DirectedRoad roadAC = new DirectedRoad("1000", "1002", GeometryAC().ToCoordList(), "AC");
+            DirectedRoad roadAD = new DirectedRoad("1000", "1003", GeometryAD().ToCoordList(), "AD");
+            DirectedRoad roadDB = new DirectedRoad("1003", "1001", GeometryDB().ToCoordList(), "DB");
 
             result.AddRoad(roadAB);
             result.AddRoad(roadAC);
@@ -101,11 +101,11 @@ namespace Snappy.XunitTests.Helpers
             RoadGraph result = new RoadGraph();
 
             // Two short roads
-            DirectedRoad roadAB = new DirectedRoad(1000, 1001, StraightAB().ToCoordList(), "AB");
-            DirectedRoad roadBC = new DirectedRoad(1001, 1002, StraightBC().ToCoordList(), "BC");
+            DirectedRoad roadAB = new DirectedRoad("1000", "1001", StraightAB().ToCoordList(), "AB");
+            DirectedRoad roadBC = new DirectedRoad("1001", "1002", StraightBC().ToCoordList(), "BC");
 
             //Long road
-            DirectedRoad roadAC = new DirectedRoad(1000, 1002, BigTriangleAC().ToCoordList(), "AC");
+            DirectedRoad roadAC = new DirectedRoad("1000", "1002", BigTriangleAC().ToCoordList(), "AC");
 
             result.AddRoad(roadAB);
             result.AddRoad(roadBC);

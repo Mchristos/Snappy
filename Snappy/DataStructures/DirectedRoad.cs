@@ -9,9 +9,9 @@ namespace Snappy.DataStructures
     [DebuggerDisplay("{Name} {Start} --> {End}")]
     public class DirectedRoad : IEquatable<DirectedRoad>
     {
-        public long Start { get; set; }
+        public string Start { get; set; }
 
-        public long End { get; set; }
+        public string End { get; set; }
 
         public List<Coord> Geometry { get; set; }
 
@@ -19,7 +19,7 @@ namespace Snappy.DataStructures
 
         public string Squid { get; set; }
 
-        public DirectedRoad(long startNodeId, long endNodeId, List<Coord> geometry, string name)
+        public DirectedRoad(string startNodeId, string endNodeId, List<Coord> geometry, string name)
         {
             Start = startNodeId;
             End = endNodeId;
