@@ -95,5 +95,21 @@ namespace Snappy.Functions
             return new Snappy.ValueObjects.Coord(meanLat, meanLng);
         }
 
+        public static List<Coord> RemoveExactDuplicates(this List<Coord> input)
+        {
+            if (input.Count < 2) return input;
+            var result = new List<Coord>() { input.First()};
+            for (int i = 1; i < input.Count; i++)
+            {
+                Coord lastCoord = input[i - 1];
+                Coord thisCoord = input[i];
+                if(thisCoord.Latitude != lastCoord.Latitude || thisCoord.Longitude != lastCoord.Longitude)
+                {
+                    result.Add(thisCoord);
+                }
+            }
+            return result;
+        }
+
     }
 }
