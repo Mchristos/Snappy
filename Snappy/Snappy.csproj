@@ -58,6 +58,7 @@
     <Compile Include="Clustering\FuzzyCMeans.cs" />
     <Compile Include="Clustering\PointSearchGrid.cs" />
     <Compile Include="Clustering\NaiveDBSCAN.cs" />
+    <Compile Include="Config\DefaultValues.cs" />
     <Compile Include="Config\Urls.cs" />
     <Compile Include="Config\Constants.cs" />
     <Compile Include="DataStructures\DirectedRoad.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="Functions\ProbabilityFunctions.cs" />
     <Compile Include="MapMatching\Emission.cs" />
     <Compile Include="MapMatching\MapState.cs" />
+    <Compile Include="MapMatching\Parameters.cs" />
     <Compile Include="MapMatching\Transition.cs" />
     <Compile Include="MapMatching\UpdateAnalytics.cs" />
     <Compile Include="MapMatching\MapMatcher.cs" />

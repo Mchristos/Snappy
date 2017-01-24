@@ -22,8 +22,13 @@ namespace Snappy.MapMatching
 
         private Dictionary<string, T> _dataByRoadId { get; set; }
 
-        public MapMatcher(List<T> data, Func<T, DirectedRoad> dataToRoad)
+        public Parameters Parameters { get; set; }
+
+        public MapMatcher(List<T> data, Func<T, DirectedRoad> dataToRoad, BoundingBox boundingBox = null, double dijstraUpperSearchLimit = DefaultValues.Dijstra_Upper_Search_Limit_In_Meters, double nearbyRoadRadius = DefaultValues.Nearby_Road_Radius_In_Meters)
         {
+            // Initialize parameters
+            Parameters = new Parameters( nearbyRoadsThreshold : nearbyRoadRadius,  dijstraUpperSearchLimit : dijstraUpperSearchLimit);
+
             //Build graph
             _dataByRoadId = new Dictionary<string, T>();
             var graph = new RoadGraph();
@@ -36,7 +41,7 @@ namespace Snappy.MapMatching
             Graph = graph;
 
             // Compute search grid (for accessing nearby roads)
-            SearchGrid = SearchGridFactory.ComputeSearchGrid(graph, Constants.Search_Grid_Grid_Size_In_Meters);
+            SearchGrid = SearchGridFactory.ComputeSearchGrid(graph, nearbyRoadRadius, boundingBox);
 
             // Initialize state
             State = MapMatchState.InitialState();
@@ -52,7 +57,7 @@ namespace Snappy.MapMatching
             analytics.PrevProbabilityVector = State.Probabilities;
 
             // Find nearby roads using search grid
-            List<DirectedRoad> nearbyRoads = SearchGrid.GetNearbyValues(coord, Constants.Search_Grid_Grid_Size_In_Meters);
+            List<DirectedRoad> nearbyRoads = SearchGrid.GetNearbyValues(coord, Parameters.NearbyRoadsThreshold);
             if (nearbyRoads.Count == 0)
             {
                 // If no nearby roads, update fails.
@@ -79,7 +84,7 @@ namespace Snappy.MapMatching
             {
                 foreach (var projection in nearbyRoadProjections)
                 {
-                    Emission emission = MarkovProbabilityHelpers.EmissionProbability(projection);
+                    Emission emission = MarkovProbabilityHelpers.EmissionProbability(projection, Parameters.Sigma);
                     analytics.Emissions[projection.Road] = emission;
                     newProbabilityVector[projection.Road] = emission.Probability;
                     transitionMemory[projection.Road] = null;
@@ -90,7 +95,7 @@ namespace Snappy.MapMatching
                 foreach (var projection in nearbyRoadProjections)
                 {
                     //Calculate emission probability
-                    Emission emission = MarkovProbabilityHelpers.EmissionProbability(projection);
+                    Emission emission = MarkovProbabilityHelpers.EmissionProbability(projection, Parameters.Sigma);
                     analytics.Emissions[projection.Road] = emission;
 
                     //Calculate maximum transition from possible prev state
@@ -98,7 +103,7 @@ namespace Snappy.MapMatching
                     analytics.AllTransitions[projection.Road] = new List<Transition>();
                     foreach (var prevProjection in State.PrevNearbyRoadsAndProjections)
                     {
-                        Transition transition = MarkovProbabilityHelpers.TransitionProbability(Graph, prevProjection, projection);
+                        Transition transition = MarkovProbabilityHelpers.TransitionProbability(Graph, prevProjection, projection, Parameters);
                         analytics.AllTransitions[projection.Road].Add(transition);
                         maxCandidates[transition] = transition.Probability * State.Probabilities[prevProjection.Road];
                     }

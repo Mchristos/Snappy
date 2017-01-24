@@ -38,9 +38,9 @@ namespace Snappy.XunitTests
             var graph = OsmGraphBuilder.BuildInRegion(Snappy.Config.Urls.MainOverpassApi, box);
 
             List<DirectedRoad> actualPath;
-            long startOfCarlaCloseNodeId = 451614090;
-            long midBelindaNodeId = 451614893;
-            Snappy.Functions.PathFinding.DijstraTryFindPath(graph, startOfCarlaCloseNodeId, midBelindaNodeId, out actualPath);
+            string startOfCarlaCloseNodeId = "451614090";
+            string midBelindaNodeId = "451614893";
+            Snappy.Functions.PathFinding.DijstraTryFindPath(graph, startOfCarlaCloseNodeId, midBelindaNodeId, double.PositiveInfinity, out actualPath);
 
             var actualPathNames = actualPath.Select(x => x.Name).ToList();
             var expectedPathNames = new List<string>()

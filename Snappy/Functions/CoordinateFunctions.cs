@@ -17,7 +17,7 @@ namespace Snappy.Functions
         /// <param name ="timeStamps"></param>
         /// <param name ="radiusInMeters"></param>
         /// <returns></returns>
-        public static List<Coord> GetCleanedCoordinates(this List<Coord> track, List<DateTime> timeStamps = null, double radiusInMeters = 2 * Constants.GPS_Error_In_Meters)
+        public static List<Coord> GetCleanedCoordinates(this List<Coord> track, List<DateTime> timeStamps = null, double radiusInMeters = 2 * DefaultValues.GPS_Error_In_Meters)
         {
             if (timeStamps != null)
             {
@@ -37,7 +37,7 @@ namespace Snappy.Functions
                 {
                     TimeSpan timeDiff = timeStamps[iterator] - timeStamps[currentIndex];
                     var avgSpeedInKmPerHour = dist.DistanceInKilometers / timeDiff.TotalHours;
-                    passedSpeedTest = avgSpeedInKmPerHour < Constants.Too_Fast_In_Kilometres_Per_Hour_For_Coordinate_Cleaning;
+                    passedSpeedTest = avgSpeedInKmPerHour < DefaultValues.Too_Fast_In_Kilometres_Per_Hour_For_Coordinate_Cleaning;
                 }
                 if (dist.DistanceInMeters > radiusInMeters && passedSpeedTest)
                 {

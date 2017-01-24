@@ -15,7 +15,7 @@ namespace Snappy.Functions
         /// <param name="origin"></param>
         /// <param name="destination"></param>
         /// <returns></returns>
-        public static bool DijstraTryFindPath(RoadGraph graph, string origin, string destination, out List<DirectedRoad> path)
+        public static bool DijstraTryFindPath(RoadGraph graph, string origin, string destination, double upperSearchLimitInMeters, out List<DirectedRoad> path)
         {
             path = new List<DirectedRoad>();
             // If there are no outgoing roads from the origin
@@ -46,7 +46,7 @@ namespace Snappy.Functions
             {
                 // find the least item and remove from heap
                 currentSearch = heap.FindMin();
-                if (currentSearch.Distance > Config.Constants.Dijstra_Upper_Search_Limit_In_Meters)
+                if (currentSearch.Distance > upperSearchLimitInMeters)
                 {
                     return false;
                 }
@@ -83,14 +83,14 @@ namespace Snappy.Functions
                 }
             }
 
-            if(currentSearch.Id != destination)
+            if (currentSearch.Id != destination)
             {
                 // Perhaps there is no path from origin to destination
-                // To throw exception or return false?? 
+                // To throw exception or return false??
                 return false;
             }
 
-            //trace back path
+            // Trace back path
             List<DirectedRoad> result = new List<DirectedRoad>();
             DijstraSearchItem tracer = currentSearch;
             while (tracer.PrevRoad != null)
@@ -100,13 +100,10 @@ namespace Snappy.Functions
             }
             result.Reverse();
 
-            if(result.First().Start != origin || result.Last().End != destination)
+            if (result.First().Start != origin || result.Last().End != destination)
             {
                 throw new Exception("connecting path does not correctly connect origin and destination");
             }
-
-
-
 
             path = result;
             return true;
@@ -130,7 +127,7 @@ namespace Snappy.Functions
                 //add all necessary roads up to and including the i'th
                 List<DirectedRoad> connection;
 
-                if (DijstraTryFindPath(graph, cleanedSequence[i - 1].End, cleanedSequence[i].Start, out connection))
+                if (DijstraTryFindPath(graph, cleanedSequence[i - 1].End, cleanedSequence[i].Start, double.PositiveInfinity, out connection))
                 {
                     result.AddRange(connection);
                     result.Add(cleanedSequence[i]);
@@ -143,16 +140,7 @@ namespace Snappy.Functions
             return result;
         }
 
-
-
-
-
-
-
-
-        //Jan's beastly dijstra 
-
-
+        //Jan's beastly dijstra
 
         //public static List<DirectedRoad> DijstraConnectRoads(this RoadGraph graph, DirectedRoad start, DirectedRoad end)
         //{
@@ -211,10 +199,5 @@ namespace Snappy.Functions
         //    results.Reverse();
         //    return results;
         //}
-
-
-
     }
-
-
 }

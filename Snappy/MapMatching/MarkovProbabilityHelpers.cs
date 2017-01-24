@@ -1,20 +1,18 @@
-﻿using Snappy.Config;
-using Snappy.DataStructures;
+﻿using Snappy.DataStructures;
 using Snappy.Functions;
 using Snappy.ValueObjects;
-using System;
 using System.Collections.Generic;
 
 namespace Snappy.MapMatching
 {
     internal class MarkovProbabilityHelpers
     {
-        public static Emission EmissionProbability(ProjectToRoad projection)
+        public static Emission EmissionProbability(ProjectToRoad projection, double sigmaValue)
         {
-            return new Emission(projection);
+            return new Emission(projection, sigmaValue);
         }
 
-        public static Transition TransitionProbability(RoadGraph graph, ProjectToRoad projection1, ProjectToRoad projection2)
+        public static Transition TransitionProbability(RoadGraph graph, ProjectToRoad projection1, ProjectToRoad projection2, Parameters parameters)
         {
             DirectedRoad road1 = projection1.Road;
             DirectedRoad road2 = projection2.Road;
@@ -33,10 +31,8 @@ namespace Snappy.MapMatching
             // Road start or end on the same node
             else if (road1.End == road2.End || road1.Start == road2.Start)
             {
-     
-                    //make this transition impossible
-                    return Transition.ImpossibleTransition(road1, road2);
-                
+                //make this transition impossible
+                return Transition.ImpossibleTransition(road1, road2);
             }
 
             // Roads are connected (can be same road in opposite direction)
@@ -49,7 +45,7 @@ namespace Snappy.MapMatching
             else
             {
                 List<DirectedRoad> path;
-                if (PathFinding.DijstraTryFindPath(graph, road1.End, road2.Start, out path))
+                if (PathFinding.DijstraTryFindPath(graph, road1.End, road2.Start, parameters.DijstraUpperSearchLimit, out path))
                 {
                     Distance connectingDist = Distance.Zero;
                     foreach (var road in path)
@@ -67,7 +63,7 @@ namespace Snappy.MapMatching
 
             Distance haversineDistance = projection1.Coordinate.HaversineDistance(projection2.Coordinate);
 
-            return new Transition(onRoadDistanceInMeters, haversineDistance.DistanceInMeters, road1, road2);
+            return new Transition(onRoadDistanceInMeters, haversineDistance.DistanceInMeters, road1, road2, parameters);
         }
     }
 }

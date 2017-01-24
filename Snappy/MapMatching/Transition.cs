@@ -20,7 +20,7 @@ namespace Snappy.MapMatching
 
         public DirectedRoad To { get; set; }
 
-        public Transition(double onRoadDistanceInMeters, double haversineDistanceInMeters, DirectedRoad from, DirectedRoad to)
+        public Transition(double onRoadDistanceInMeters, double haversineDistanceInMeters, DirectedRoad from, DirectedRoad to, Parameters parameters)
         {
             OnRoadDistInMeters = onRoadDistanceInMeters;
             HaversineDistInMeters = haversineDistanceInMeters;
@@ -29,13 +29,13 @@ namespace Snappy.MapMatching
             
             // COMPUTE TRANSITION PROBABILITY
             double diffInMeters = Math.Abs(haversineDistanceInMeters - onRoadDistanceInMeters);
-            if(diffInMeters > Constants.Difference_Threshold_For_Transitions_In_Meters)
+            if(diffInMeters > parameters.TransitionDiffThreshold)
             {
                 Probability = 0;
             }
             else
             {
-                Probability = ProbabilityFunctions.ExponentialDistribution(diffInMeters, Constants.Beta_For_Transitions_In_Meters);
+                Probability = ProbabilityFunctions.ExponentialDistribution(diffInMeters, parameters.Beta);
             }
         }
 

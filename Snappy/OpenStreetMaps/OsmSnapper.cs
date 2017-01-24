@@ -51,7 +51,7 @@ namespace Snappy.OpenStreetMaps
             if(MapMatcher == null)
             {
                 // Build graph in region and initialize map matcher
-                BoundingBox boundingBox = coords.GetBoundingBox(Constants.GPS_Error_In_Meters);
+                BoundingBox boundingBox = coords.GetBoundingBox(DefaultValues.GPS_Error_In_Meters);
                 var osmGraph = OsmGraphBuilder.BuildInRegion(_overpassApi, boundingBox, highwayTags, railTags);
 
                 mapMatcher = new OsmMapMatcher(osmGraph);
