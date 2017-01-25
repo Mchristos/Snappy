@@ -12,7 +12,7 @@ namespace Snappy.MapMatching
             return new Emission(projection, sigmaValue);
         }
 
-        public static Transition TransitionProbability(RoadGraph graph, ProjectToRoad projection1, ProjectToRoad projection2, Parameters parameters)
+        public static Transition TransitionProbability(RoadGraph graph, ProjectToRoad projection1, ProjectToRoad projection2, MapMatcherParameters parameters)
         {
             DirectedRoad road1 = projection1.Road;
             DirectedRoad road2 = projection2.Road;

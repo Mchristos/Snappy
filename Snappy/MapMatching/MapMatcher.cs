@@ -22,12 +22,12 @@ namespace Snappy.MapMatching
 
         private Dictionary<string, T> _dataByRoadId { get; set; }
 
-        public Parameters Parameters { get; set; }
+        public MapMatcherParameters Parameters { get; set; }
 
-        public MapMatcher(List<T> data, Func<T, DirectedRoad> dataToRoad, BoundingBox boundingBox = null, double dijstraUpperSearchLimit = DefaultValues.Dijstra_Upper_Search_Limit_In_Meters, double nearbyRoadRadius = DefaultValues.Nearby_Road_Radius_In_Meters)
+        public MapMatcher(List<T> data, Func<T, DirectedRoad> dataToRoad, MapMatcherParameters parameters, BoundingBox boundingBox = null)
         {
             // Initialize parameters
-            Parameters = new Parameters( nearbyRoadsThreshold : nearbyRoadRadius,  dijstraUpperSearchLimit : dijstraUpperSearchLimit);
+            Parameters = parameters;
 
             //Build graph
             _dataByRoadId = new Dictionary<string, T>();
@@ -41,7 +41,7 @@ namespace Snappy.MapMatching
             Graph = graph;
 
             // Compute search grid (for accessing nearby roads)
-            SearchGrid = SearchGridFactory.ComputeSearchGrid(graph, nearbyRoadRadius, boundingBox);
+            SearchGrid = SearchGridFactory.ComputeSearchGrid(graph, parameters.NearbyRoadsThreshold, boundingBox);
 
             // Initialize state
             State = MapMatchState.InitialState();

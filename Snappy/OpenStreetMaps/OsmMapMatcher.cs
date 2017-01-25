@@ -8,7 +8,7 @@ namespace Snappy.OpenStreetMaps
     {
         public OsmMapMatcher(RoadGraph graph)
         {
-            Parameters = new Parameters();
+            Parameters = MapMatcherParameters.Default;
             SearchGrid = SearchGridFactory.ComputeSearchGrid(graph, DefaultValues.Nearby_Road_Radius_In_Meters);
             Graph = graph;
             State = MapMatchState.InitialState();

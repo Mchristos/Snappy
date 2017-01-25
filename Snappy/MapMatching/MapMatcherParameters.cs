@@ -7,7 +7,7 @@ using Snappy.Config;
 
 namespace Snappy.MapMatching
 {
-    public class Parameters
+    public class MapMatcherParameters
     {
         /// <summary>
         /// Parameter govorning transition probabilities. 
@@ -34,13 +34,21 @@ namespace Snappy.MapMatching
         /// </summary>
         public double DijstraUpperSearchLimit { get; set; }
 
-        public Parameters(double beta = DefaultValues.Beta_For_Transitions_In_Meters, double sigma = DefaultValues.Sigma_Value_In_Meters_For_Emissions, double nearbyRoadsThreshold = DefaultValues.Nearby_Road_Radius_In_Meters, double diffThreshold = DefaultValues.Difference_Threshold_For_Transitions_In_Meters, double dijstraUpperSearchLimit = DefaultValues.Dijstra_Upper_Search_Limit_In_Meters)
+        public MapMatcherParameters(double beta = DefaultValues.Beta_For_Transitions_In_Meters, double sigma = DefaultValues.Sigma_Value_In_Meters_For_Emissions, double nearbyRoadsThreshold = DefaultValues.Nearby_Road_Radius_In_Meters, double diffThreshold = DefaultValues.Difference_Threshold_For_Transitions_In_Meters, double dijstraUpperSearchLimit = DefaultValues.Dijstra_Upper_Search_Limit_In_Meters)
         {
             Beta = beta;
             Sigma = sigma;
             NearbyRoadsThreshold = nearbyRoadsThreshold;
             TransitionDiffThreshold = diffThreshold;
             DijstraUpperSearchLimit = dijstraUpperSearchLimit;
+        }
+
+        public static MapMatcherParameters Default
+        {
+            get
+            {
+                return new MapMatcherParameters();
+            }
         }
     }
 }

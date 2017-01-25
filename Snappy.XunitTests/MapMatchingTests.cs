@@ -77,7 +77,7 @@ namespace Snappy.XunitTests
                 BC,
                 BD
             };
-            var mapmatcher = new MapMatcher<CustomRoad>(customRoads, x => new DataStructures.DirectedRoad( getIdTupleFromName(x.Name).Item1, getIdTupleFromName(x.Name).Item2, x.Geometry, x.Name));
+            var mapmatcher = new MapMatcher<CustomRoad>(customRoads, x => new DataStructures.DirectedRoad( getIdTupleFromName(x.Name).Item1, getIdTupleFromName(x.Name).Item2, x.Geometry, x.Name), MapMatcherParameters.Default);
             var fakeTrack = Geometry.FakeVehicleTrackABD.ToCoordList();
 
             UpdateAnalytics analytics;

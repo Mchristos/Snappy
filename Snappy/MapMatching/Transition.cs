@@ -20,7 +20,7 @@ namespace Snappy.MapMatching
 
         public DirectedRoad To { get; set; }
 
-        public Transition(double onRoadDistanceInMeters, double haversineDistanceInMeters, DirectedRoad from, DirectedRoad to, Parameters parameters)
+        public Transition(double onRoadDistanceInMeters, double haversineDistanceInMeters, DirectedRoad from, DirectedRoad to, MapMatcherParameters parameters)
         {
             OnRoadDistInMeters = onRoadDistanceInMeters;
             HaversineDistInMeters = haversineDistanceInMeters;
