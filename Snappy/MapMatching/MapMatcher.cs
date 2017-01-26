@@ -56,6 +56,8 @@ namespace Snappy.MapMatching
             analytics.Coordinate = coord;
             analytics.PrevProbabilityVector = State.Probabilities;
 
+            // Set default parameters - not sure where this was supposed to be initialized (bug from bulk import)
+            if (Parameters == null) Parameters = MapMatcherParameters.Default;
             // Find nearby roads using search grid
             List<DirectedRoad> nearbyRoads = SearchGrid.GetNearbyValues(coord, Parameters.NearbyRoadsThreshold);
             if (nearbyRoads.Count == 0)
