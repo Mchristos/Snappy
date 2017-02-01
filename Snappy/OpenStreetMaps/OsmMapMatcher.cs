@@ -24,6 +24,7 @@ namespace Snappy.OpenStreetMaps
             result.Graph = Graph;
             result.SearchGrid = SearchGrid.Clone();
             result.State = MapMatchState.InitialState();
+            result.Parameters = Parameters;
             return result;
         }
     }
