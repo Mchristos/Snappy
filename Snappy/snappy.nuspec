@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
-<package >
+<package>
   <metadata>
-    <id>Snappy</id>
-    <version>1.0.0</version>
-    <title>Snappy</title>
+    <id>WhereIsMyTransport.Snappy</id>
+    <version>1.1.0</version>
+    <title>WhereIsMyTransport Snappy</title>
     <authors>ChrisM</authors>
     <owners>ChrisM</owners>        
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Snappy is library which snaps co-ordinates to OSM roads. </description>
     <releaseNotes></releaseNotes>
-    <copyright>Copyright 2016</copyright>    
+    <copyright>Copyright 2016</copyright>  
     <dependencies>    
        <group targetFramework="net452">
           <dependency id="C5" version="2.4.5947.17249" />
@@ -18,4 +18,7 @@
         </group>
     </dependencies>
   </metadata>
-</package>
+  <files>
+      <file src="bin\Release\*.dll" target="lib\net451" />
+  </files>
+</package>  
