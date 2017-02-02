@@ -78,10 +78,9 @@ namespace Snappy.OpenStreetMaps
             for (int i = 0; i < cleanedCoords.Count; i++)
             {
                 Coord coord = cleanedCoords[i];
-                UpdateAnalytics analytics;
-                if (mapMatcher.TryUpdateState(coord, out analytics, printUpdateAnalyticsToConsole: _printConsoleUpdates))
+                if (mapMatcher.TryUpdateState(coord, printUpdateAnalyticsToConsole: _printConsoleUpdates))
                 {
-                    updateTimesInMilliseconds.Add(analytics.UpdateTimeInMilliseconds);
+                    updateTimesInMilliseconds.Add(mapMatcher.LastUpdateAnalytics.UpdateTimeInMilliseconds);
                 }
                 else
                 {

@@ -20,9 +20,13 @@ namespace Snappy.MapMatching
 
         public MapMatchState State { get; set; }
 
+        public MapMatcherParameters Parameters { get; set; }
+
+        public UpdateAnalytics LastUpdateAnalytics { get; set; }
+
+
         private Dictionary<string, T> _dataByRoadId { get; set; }
 
-        public MapMatcherParameters Parameters { get; set; }
 
         public MapMatcher(List<T> data, Func<T, DirectedRoad> dataToRoad, MapMatcherParameters parameters, BoundingBox boundingBox = null)
         {
@@ -47,26 +51,26 @@ namespace Snappy.MapMatching
             State = MapMatchState.InitialState();
         }
         public MapMatcher() { }
-        public bool TryUpdateState(Coord coord, out UpdateAnalytics analytics, DateTime timeStamp = default(DateTime), bool printUpdateAnalyticsToConsole = false)
+        public bool TryUpdateState(Coord coord, DateTime timeStamp = default(DateTime), bool printUpdateAnalyticsToConsole = false)
         {
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
-            analytics = new UpdateAnalytics();
-            analytics.Coordinate = coord;
-            analytics.PrevProbabilityVector = State.Probabilities;
+            LastUpdateAnalytics = new UpdateAnalytics();
+            LastUpdateAnalytics.Coordinate = coord;
+            LastUpdateAnalytics.PrevProbabilityVector = State.Probabilities;
 
             // Find nearby roads using search grid
             List<DirectedRoad> nearbyRoads = SearchGrid.GetNearbyValues(coord, Parameters.NearbyRoadsThreshold);
             if (nearbyRoads.Count == 0)
             {
                 // If no nearby roads, update fails.
-                analytics.UpdateStatus = Enums.MapMatchUpdateStatus.NoNearbyRoads;
+                LastUpdateAnalytics.UpdateStatus = Enums.MapMatchUpdateStatus.NoNearbyRoads;
                 stopwatch.Stop();
-                analytics.UpdateTimeInMilliseconds = stopwatch.ElapsedMilliseconds;
+                LastUpdateAnalytics.UpdateTimeInMilliseconds = stopwatch.ElapsedMilliseconds;
                 if (printUpdateAnalyticsToConsole)
                 {
-                    analytics.PrintUpdateSummary();
+                    LastUpdateAnalytics.PrintUpdateSummary();
                 }
 
                 return false;
@@ -85,7 +89,7 @@ namespace Snappy.MapMatching
                 foreach (var projection in nearbyRoadProjections)
                 {
                     Emission emission = MarkovProbabilityHelpers.EmissionProbability(projection, Parameters.Sigma);
-                    analytics.Emissions[projection.Road] = emission;
+                    LastUpdateAnalytics.Emissions[projection.Road] = emission;
                     newProbabilityVector[projection.Road] = emission.Probability;
                     transitionMemory[projection.Road] = null;
                 }
@@ -96,21 +100,21 @@ namespace Snappy.MapMatching
                 {
                     //Calculate emission probability
                     Emission emission = MarkovProbabilityHelpers.EmissionProbability(projection, Parameters.Sigma);
-                    analytics.Emissions[projection.Road] = emission;
+                    LastUpdateAnalytics.Emissions[projection.Road] = emission;
 
                     //Calculate maximum transition from possible prev state
                     var maxCandidates = new Dictionary<Transition, double>();
-                    analytics.AllTransitions[projection.Road] = new List<Transition>();
+                    LastUpdateAnalytics.AllTransitions[projection.Road] = new List<Transition>();
                     foreach (var prevProjection in State.PrevNearbyRoadsAndProjections)
                     {
                         Transition transition = MarkovProbabilityHelpers.TransitionProbability(Graph, prevProjection, projection, Parameters);
-                        analytics.AllTransitions[projection.Road].Add(transition);
+                        LastUpdateAnalytics.AllTransitions[projection.Road].Add(transition);
                         maxCandidates[transition] = transition.Probability * State.Probabilities[prevProjection.Road];
                     }
                     var maxPair = maxCandidates.Aggregate((x, y) => x.Value > y.Value ? x : y);
 
-                    analytics.MaxTransitions[projection.Road] = maxPair.Key;
-                    analytics.PropogatedTransitionValues[maxPair.Key] = maxPair.Value;
+                    LastUpdateAnalytics.MaxTransitions[projection.Road] = maxPair.Key;
+                    LastUpdateAnalytics.PropogatedTransitionValues[maxPair.Key] = maxPair.Value;
 
                     //probability update
                     newProbabilityVector[projection.Road] = maxPair.Value * emission.Probability;
@@ -121,36 +125,36 @@ namespace Snappy.MapMatching
             }
 
             // CHECK IF UPDATE FAILED
-            if (analytics.Emissions.Values.Select(x => x.Probability).Sum() < double.Epsilon)
+            if (LastUpdateAnalytics.Emissions.Values.Select(x => x.Probability).Sum() < double.Epsilon)
             {
-                analytics.UpdateStatus = Enums.MapMatchUpdateStatus.ZeroEmissions;
+                LastUpdateAnalytics.UpdateStatus = Enums.MapMatchUpdateStatus.ZeroEmissions;
                 stopwatch.Stop();
-                analytics.UpdateTimeInMilliseconds = stopwatch.ElapsedMilliseconds;
+                LastUpdateAnalytics.UpdateTimeInMilliseconds = stopwatch.ElapsedMilliseconds;
                 if (printUpdateAnalyticsToConsole)
                 {
-                    analytics.PrintUpdateSummary();
+                    LastUpdateAnalytics.PrintUpdateSummary();
                 }
                 return false;
             }
-            if (analytics.MaxTransitions.Count > 0 && analytics.MaxTransitions.Values.Select(x => x.Probability).Sum() < double.Epsilon)
+            if (LastUpdateAnalytics.MaxTransitions.Count > 0 && LastUpdateAnalytics.MaxTransitions.Values.Select(x => x.Probability).Sum() < double.Epsilon)
             {
-                analytics.UpdateStatus = Enums.MapMatchUpdateStatus.NoPossibleTransitions;
+                LastUpdateAnalytics.UpdateStatus = Enums.MapMatchUpdateStatus.NoPossibleTransitions;
                 stopwatch.Stop();
-                analytics.UpdateTimeInMilliseconds = stopwatch.ElapsedMilliseconds;
+                LastUpdateAnalytics.UpdateTimeInMilliseconds = stopwatch.ElapsedMilliseconds;
                 if (printUpdateAnalyticsToConsole)
                 {
-                    analytics.PrintUpdateSummary();
+                    LastUpdateAnalytics.PrintUpdateSummary();
                 }
                 return false;
             }
-            if (analytics.PropogatedTransitionValues.Count > 0 && analytics.PropogatedTransitionValues.Values.Sum() < double.Epsilon)
+            if (LastUpdateAnalytics.PropogatedTransitionValues.Count > 0 && LastUpdateAnalytics.PropogatedTransitionValues.Values.Sum() < double.Epsilon)
             {
-                analytics.UpdateStatus = Enums.MapMatchUpdateStatus.NoPossibleTransitions;
+                LastUpdateAnalytics.UpdateStatus = Enums.MapMatchUpdateStatus.NoPossibleTransitions;
                 stopwatch.Stop();
-                analytics.UpdateTimeInMilliseconds = stopwatch.ElapsedMilliseconds;
+                LastUpdateAnalytics.UpdateTimeInMilliseconds = stopwatch.ElapsedMilliseconds;
                 if (printUpdateAnalyticsToConsole)
                 {
-                    analytics.PrintUpdateSummary();
+                    LastUpdateAnalytics.PrintUpdateSummary();
                 }
                 return false;
             }
@@ -159,7 +163,7 @@ namespace Snappy.MapMatching
             {
                 throw new Exception("New probability vector is zero everywhere. This problem should have been caught before this breakpoint is hit");
             }
-            analytics.NonNormalizedProbabilityVector = newProbabilityVector;
+            LastUpdateAnalytics.NonNormalizedProbabilityVector = newProbabilityVector;
 
             //UPDATE STATE:
 
@@ -177,15 +181,15 @@ namespace Snappy.MapMatching
             // 4.
             State.PrevNearbyRoadsAndProjections = nearbyRoadProjections;
 
-            analytics.ProbabilityVector = State.Probabilities;
-            analytics.UpdateStatus = Enums.MapMatchUpdateStatus.SuccessfullyUpdated;
+            LastUpdateAnalytics.ProbabilityVector = State.Probabilities;
+            LastUpdateAnalytics.UpdateStatus = Enums.MapMatchUpdateStatus.SuccessfullyUpdated;
             stopwatch.Stop();
-            analytics.UpdateTimeInMilliseconds = stopwatch.Elapsed.TotalMilliseconds;
+            LastUpdateAnalytics.UpdateTimeInMilliseconds = stopwatch.Elapsed.TotalMilliseconds;
             //Console.WriteLine(analytics.BuildSummaryString(5));
 
             if (printUpdateAnalyticsToConsole)
             {
-                analytics.PrintUpdateSummary(20);
+                LastUpdateAnalytics.PrintUpdateSummary(20);
             }
             return true;
         }
