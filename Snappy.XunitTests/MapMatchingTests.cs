@@ -22,19 +22,19 @@ namespace Snappy.XunitTests
             var roadgraph = OpenStreetMaps.OsmGraphBuilder.BuildInRegion(Config.Urls.MainOverpassApi, boundingBox);
             var mapmatcher = new OsmMapMatcher(roadgraph);
 
-            var analytics = new UpdateAnalytics();
             foreach (var coord in coords)
             {
                 // If TryUpdateState returns true, the UpdateStatus in UpdateAnalytics must be true
                 // Conversely if TryUpdateState returns false UpdateStatus must not be true.
-                if (mapmatcher.TryUpdateState(coord, out analytics))
+                if (mapmatcher.TryUpdateState(coord))
                 {
-                    Assert.Equal(Enums.MapMatchUpdateStatus.SuccessfullyUpdated, analytics.UpdateStatus);
+                    Assert.Equal(Enums.MapMatchUpdateStatus.SuccessfullyUpdated, mapmatcher.LastUpdateAnalytics.UpdateStatus);
                 }
                 else
                 {
-                    Assert.False(Enums.MapMatchUpdateStatus.SuccessfullyUpdated == analytics.UpdateStatus);
+                    Assert.False(Enums.MapMatchUpdateStatus.SuccessfullyUpdated == mapmatcher.LastUpdateAnalytics.UpdateStatus);
                 }
+                var analytics = mapmatcher.LastUpdateAnalytics;
 
                 // The probability vector in the analytcs object must be equal to the probability vector in the map matcher state. 
                 Assert.Equal(mapmatcher.State.Probabilities, analytics.ProbabilityVector);
@@ -80,10 +80,9 @@ namespace Snappy.XunitTests
             var mapmatcher = new MapMatcher<CustomRoad>(customRoads, x => new DataStructures.DirectedRoad( getIdTupleFromName(x.Name).Item1, getIdTupleFromName(x.Name).Item2, x.Geometry, x.Name), MapMatcherParameters.Default);
             var fakeTrack = Geometry.FakeVehicleTrackABD.ToCoordList();
 
-            UpdateAnalytics analytics;
             foreach (var point in fakeTrack)
             {
-                bool updated = mapmatcher.TryUpdateState(point, out analytics);
+                bool updated = mapmatcher.TryUpdateState(point);
                 Assert.Equal(true, updated);
             }
             var sequence = mapmatcher.GetMostLikelySequence().Select(x => x.Datum.Name).ToList();
