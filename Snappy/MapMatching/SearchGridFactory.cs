@@ -62,7 +62,7 @@ namespace Snappy.MapMatching
             result.Populate(graph.Values.SelectMany(x => x));
 
             stopwatch.Stop();
-            Console.WriteLine(stopwatch.Elapsed.TotalSeconds + " seconds to compute grid search data structure for searching nearby roads.");
+            //Console.WriteLine(stopwatch.Elapsed.TotalSeconds + " seconds to compute grid search data structure for searching nearby roads.");
 
             return result;
         }
