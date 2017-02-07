@@ -19,6 +19,8 @@ namespace Snappy.OpenStreetMaps
 
         public OsmMapMatcher MapMatcher { get; set; }
 
+        public SnapSummary SnappedAnalytics { get; set; }
+
         public OsmSnapper(OverpassApi overpassApi, BoundingBox boundingBox = null,  bool printConsoleUpdates = false)
         {
             _printConsoleUpdates = printConsoleUpdates;
@@ -108,6 +110,8 @@ namespace Snappy.OpenStreetMaps
             totalTimeStopwatch.Stop();
             snapSummary.TotalSnapTimeInSeconds = totalTimeStopwatch.Elapsed.TotalSeconds;
             snapSummary.MeanUpdateTimeInMilliseconds = updateTimesInMilliseconds.Average();
+
+            SnappedAnalytics = snapSummary;
 
             // Print summary info to the console
             snapSummary.PrintSummaryToConsole();
