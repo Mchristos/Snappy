@@ -28,36 +28,34 @@ namespace Snappy.XunitTests
                 // Conversely if TryUpdateState returns false UpdateStatus must not be true.
                 if (mapmatcher.TryUpdateState(coord))
                 {
-                    Assert.Equal(Enums.MapMatchUpdateStatus.SuccessfullyUpdated, mapmatcher.LastUpdateAnalytics.UpdateStatus);
+                    Assert.Equal(Enums.MapMatchUpdateStatus.SuccessfullyUpdated, mapmatcher.UpdateInfo.UpdateStatus);
                 }
                 else
                 {
-                    Assert.False(Enums.MapMatchUpdateStatus.SuccessfullyUpdated == mapmatcher.LastUpdateAnalytics.UpdateStatus);
+                    Assert.False(Enums.MapMatchUpdateStatus.SuccessfullyUpdated == mapmatcher.UpdateInfo.UpdateStatus);
                 }
-                var analytics = mapmatcher.LastUpdateAnalytics;
+                var analytics = mapmatcher.UpdateInfo;
 
                 // The probability vector in the analytcs object must be equal to the probability vector in the map matcher state. 
-                Assert.Equal(mapmatcher.State.Probabilities, analytics.ProbabilityVector);
+                Assert.Equal(mapmatcher.State.Probabilities, analytics.Probabilities);
 
                 // Each transition "remembered" by roads must transition "to" the road in question
-                foreach (var pair in analytics.MaxTransitions)
+                foreach (var pair in analytics.AllTransitions)
                 {
-                    Assert.Equal(pair.Key, pair.Value.To);
+                    foreach (var transition in pair.Value)
+                    {
+                        Assert.Equal(pair.Key, transition.To);
+                    }
                 }
 
                 // Check that newProbability = probOfTranferredFrom * transitionProb * emissionProb
                 // for each nearby road at this step (before normalization) 
-                if(analytics.MaxTransitions.Count > 0)
+                if(analytics.AllTransitions.Count > 0)
                 {
                     foreach (var road in mapmatcher.State.Probabilities.Keys)
                     {
-
-                        var emissionProb = analytics.Emissions[road].Probability;
-                        Transition transition = analytics.MaxTransitions[road];
-                        var transitionProb = transition.Probability;
-                        var prevProbabilityOfFrom = analytics.PrevProbabilityVector[transition.From];
-                        double expectedNonNormalizedProbability = prevProbabilityOfFrom * transitionProb * emissionProb;
-
+                        var candidate = analytics.CandidateDetails[road];
+                        double expectedNonNormalizedProbability = candidate.P_From * candidate.P_Transition * candidate.Emission.Probability;
                         Assert.Equal(expectedNonNormalizedProbability, analytics.NonNormalizedProbabilityVector[road], 8);
                     }
                 }

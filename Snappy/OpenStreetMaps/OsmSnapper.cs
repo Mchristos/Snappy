@@ -80,7 +80,7 @@ namespace Snappy.OpenStreetMaps
                 Coord coord = cleanedCoords[i];
                 if (mapMatcher.TryUpdateState(coord, printUpdateAnalyticsToConsole: _printConsoleUpdates))
                 {
-                    updateTimesInMilliseconds.Add(mapMatcher.LastUpdateAnalytics.UpdateTimeInMilliseconds);
+                    updateTimesInMilliseconds.Add(mapMatcher.UpdateInfo.UpdateTimeInMilliseconds);
                 }
                 else
                 {

@@ -8,21 +8,38 @@ namespace Snappy.Enums
 {
     public enum MapMatchUpdateStatus
     {
-        //Invalid value
+        /// <summary>
+        /// Invalid value
+        /// </summary>
         Default,
 
-        // Successfully updated
+        /// <summary>
+        /// Successfully updated
+        /// </summary>
         SuccessfullyUpdated,
 
         // Map matcher breaks: 
 
-        // No nearby roads we found at this step
+        /// <summary>
+        /// No nearby roads we found at this step
+        /// </summary>
         NoNearbyRoads,
 
-        // All emission probabilities are zero (this should never happen basically, because there are nearby roads) 
+        /// <summary>
+        /// All emission probabilities are zero (should be rare because there will be no nearby roads) 
+        /// </summary>
         ZeroEmissions,
+        
+        /// <summary>
+        ///  No candidate transitions are possible  
+        /// </summary>
+        NoPossibleTransitions,
 
-        // All possible transitions from previous roads are impossible 
-        NoPossibleTransitions
+        /// <summary>
+        /// Only possible candidate transitions go to roads with zero emission 
+        /// </summary>
+        CrossoverProblem
+
+
     }
 }

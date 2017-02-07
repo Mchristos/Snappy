@@ -1,68 +1,96 @@
-﻿using Snappy.DataStructures;
+﻿using ConsoleTables.Core;
+using Snappy.DataStructures;
 using Snappy.Enums;
+using Snappy.ValueObjects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System;
-using Snappy.ValueObjects;
-using ConsoleTables.Core;
 
 namespace Snappy.MapMatching
 {
-    public class UpdateAnalytics
+    public class UpdateInfo
     {
+        /// <summary>
+        /// Probabilies before update
+        /// </summary>
+        public ProbabilityVector<DirectedRoad> PrevProbabilities { get; set; }
+
+        /// <summary>
+        /// Previous coordinate
+        /// </summary>
+        public Coord PrevCoordinate { get; set; }
+
+        /// <summary>
+        /// Probabilities after update ( & normalizing)
+        /// </summary>
+        public ProbabilityVector<DirectedRoad> Probabilities { get; set; }
+
+        /// <summary>
+        /// Co-ordinate at this update step
+        /// </summary>
         public Coord Coordinate { get; set; }
-        // Stores the emission probabilities calculated at this step
+
+        /// <summary>
+        /// Stores all probability information for each road candidate at this step i.e. which road transitioned from, P(from), P(transition), P(emission)
+        /// </summary>
+        public Dictionary<DirectedRoad, CandidateInfo> CandidateDetails { get; set; }
+
+        /// <summary>
+        /// Stores the emission probabilities calculated at this step
+        /// </summary>
         public Dictionary<DirectedRoad, Emission> Emissions { get; set; }
-        // Stores the most likely transition to each nearby road at this step
-        public Dictionary<DirectedRoad, Transition> MaxTransitions { get; set; }
 
-        // Stores propogated transition values: P(From)*P(Transition), i.e. the ACTUAL transition probability 
-        public Dictionary<Transition, double> PropogatedTransitionValues { get; set; }
+        /// <summary>
+        /// Stores the values P(from)*P(transition), i.e. the propogated transition for the given road
+        /// </summary>
+        public Dictionary<DirectedRoad, double> Transitions { get; set; }
 
-        // Stores all transition candidates at this step 
+        /// <summary>
+        ///  Stores all transition candidates at this step
+        /// </summary>
         public Dictionary<DirectedRoad, List<Transition>> AllTransitions { get; set; }
-        // Stores the probability vector before update 
-        public ProbabilityVector<DirectedRoad> PrevProbabilityVector { get; set; }
 
-        //Stores the probability vector after update (before normalizing) 
+        /// <summary>
+        /// Probabilities after update, before normalizing
+        /// </summary>
         public ProbabilityVector<DirectedRoad> NonNormalizedProbabilityVector { get; set; }
 
-        //Stores the probability vector after update (after normalizing) 
-        public ProbabilityVector<DirectedRoad> ProbabilityVector { get; set; }
-
-        // Status of the update 
+        /// <summary>
+        /// Status of the update
+        /// </summary>
         public MapMatchUpdateStatus UpdateStatus { get; set; }
-        
-        // Time taken to perform update 
+
+        /// <summary>
+        /// Time taken to perform update
+        /// </summary>
         public double UpdateTimeInMilliseconds { get; set; }
 
-        public UpdateAnalytics()
+        public UpdateInfo()
         {
+            CandidateDetails = new Dictionary<DirectedRoad, CandidateInfo>();
             Emissions = new Dictionary<DirectedRoad, Emission>();
-            MaxTransitions = new Dictionary<DirectedRoad, Transition>();
+            Transitions = new Dictionary<DirectedRoad, double>();
             AllTransitions = new Dictionary<DirectedRoad, List<Transition>>();
-            PropogatedTransitionValues = new Dictionary<Transition, double>();
         }
 
         public List<SummaryInfo> BuildInformationSummary()
         {
             var result = new List<SummaryInfo>();
 
-            var roadsOrderedByProbability = ProbabilityVector.OrderByDescending(x => x.Value).Select(x => x.Key).ToList();
+            var roadsOrderedByProbability = Probabilities.OrderByDescending(x => x.Value).Select(x => x.Key).ToList();
 
             foreach (var road in roadsOrderedByProbability)
             {
                 var info = new SummaryInfo
                 {
-                    StartEndNodeIds = string.Format("{0} -> {1}", road.Start , road.End ),
+                    StartEndNodeIds = string.Format("{0} -> {1}", road.Start, road.End),
                     EmissionProbability = Round(Emissions[road].Probability),
                     EmissionDistance = Round(Emissions[road].Distance.DistanceInMeters),
-                    Probability = ProbabilityVector[road],
-                    NonNormalizedProbability = Round(NonNormalizedProbabilityVector[road])
+                    Probability = Probabilities[road],
                 };
 
-                // Assign road name 
-                if(road.Name != "")
+                // Assign road name
+                if (road.Name != "")
                 {
                     info.RoadName = road.Name;
                 }
@@ -71,23 +99,23 @@ namespace Snappy.MapMatching
                     info.RoadName = "[NoName]";
                 }
 
-
-                
-                if (PrevProbabilityVector.ContainsKey(road))
+                if (PrevProbabilities.ContainsKey(road))
                 {
-                    info.PrevProbability = Round(PrevProbabilityVector[road]);
+                    info.PrevProbability = Round(PrevProbabilities[road]);
                 }
                 else
                 {
                     info.PrevProbability = 0;
                 }
 
-                if(MaxTransitions.Count > 0)
+                if (Transitions.Count > 0)
                 {
-                    // most probable transition to get to the current road
-                    var transition = MaxTransitions[road];
 
-                    var fromRoad = transition.From;
+                    CandidateInfo roadInfo = this.CandidateDetails[road];
+                    // most probable transition to get to the current road
+                    info.TransitionProbability = Round(roadInfo.P_Transition);
+
+                    var fromRoad = roadInfo.From;
 
                     if (fromRoad.Name != "")
                     {
@@ -98,75 +126,31 @@ namespace Snappy.MapMatching
                         info.FromName = "[NoName]";
                     }
                     info.FromStartEndIds = string.Format("{0} -> {1}", fromRoad.Start, fromRoad.End);
-                    info.TransitionProbability = Round(transition.Probability);
-
-                    if (PrevProbabilityVector.ContainsKey(fromRoad))
-                    {
-                        info.PrevProbOfFrom = PrevProbabilityVector[fromRoad];
-                    }
-                    else
-                    {
-                        info.PrevProbOfFrom = 0;
-                    }
+                    info.PrevProbOfFrom = roadInfo.P_From;
                 }
-
                 result.Add(info);
             }
             return result;
         }
-
 
         private double Round(double input)
         {
             return Math.Round(input, 8);
         }
 
-        //public string BuildSummaryString(int count = -1)
-        //{
-        //    string result = string.Format("UPDATE:  {0}ms \n", Math.Round( this.UpdateTimeInMilliseconds, 4));
-
-        //    var summaryInfo = BuildInformationSummary();
-        //    if (count < 0) count = summaryInfo.Count;
-        //    if (summaryInfo.Count < count) count = summaryInfo.Count;
-
-        //    for (int i = 0; i < count; i++)
-        //    {
-        //        var info = summaryInfo[i];
-
-        //        result += "--------------------------------------------- \n";
-        //        result += string.Format("{0} \n", info.RoadName);
-        //        result += string.Format("{0} \n", info.Probability);
-        //        result += "\n \n";
-        //        if (info.HasTransitionInfo)
-        //        {
-        //            result += string.Format("From \t \t {0} \n", info.FromName);
-        //            result += string.Format("Transition \t {0} \n", info.TransitionProbability);
-        //            result += string.Format("P(From) \t {0} \n", info.PrevProbOfFrom);
-        //        }
-        //        result += string.Format("Emission \t {0} (dist {1} m) \n", info.EmissionProbability, info.EmissionDistance);
-        //        result += "---------------------------------------------";
-        //        result += "\n \n";
-        //    }
-        //    result += "\n\n\n";
-        //    return result;
-        //}
         public void PrintUpdateSummary(int count = -1)
         {
-
             Console.WriteLine("UPDATE:  {0}ms ", Round(this.UpdateTimeInMilliseconds));
             Console.WriteLine("AT:  {0}, {1} \n", this.Coordinate.Latitude, this.Coordinate.Longitude);
 
             switch (UpdateStatus)
             {
-
                 case MapMatchUpdateStatus.SuccessfullyUpdated:
                     var summaryInfo = BuildInformationSummary();
                     if (count < 0) count = summaryInfo.Count;
                     if (summaryInfo.Count < count) count = summaryInfo.Count;
 
                     summaryInfo = summaryInfo.Take(count).ToList();
-
-
 
                     while (count > 6)
                     {
@@ -179,31 +163,25 @@ namespace Snappy.MapMatching
                     var lastTable = MakeTable(summaryInfo);
                     lastTable.Write(Format.MarkDown);
                     break;
+
                 case MapMatchUpdateStatus.NoNearbyRoads:
                     Console.WriteLine("FAILED: No nearby roads \n");
                     break;
+
                 case MapMatchUpdateStatus.NoPossibleTransitions:
                     Console.WriteLine("FAILED: No nearby roads \n");
                     break;
+
                 case MapMatchUpdateStatus.ZeroEmissions:
                     Console.WriteLine("FAILED: Zero emissions \n");
                     break;
-
             }
-
-
-
-
-
-            
-           
         }
 
         private ConsoleTables.Core.ConsoleTable MakeTable(List<SummaryInfo> tableData)
         {
             var columnHeading = MakeRow("", tableData.Select(x => x.RoadName).ToList());
             ConsoleTables.Core.ConsoleTable result = new ConsoleTables.Core.ConsoleTable(columnHeading);
-
 
             var startEndNodes = MakeRow("", tableData.Select(x => x.StartEndNodeIds));
             var probabilities = MakeRow("Prob", tableData.Select(x => x.Probability.ToString()));
@@ -235,8 +213,6 @@ namespace Snappy.MapMatching
             }
             return result.ToArray();
         }
-
-
     }
 
     public class SummaryInfo
@@ -247,16 +223,14 @@ namespace Snappy.MapMatching
             get { return FromName != null; }
         }
 
-        // Road in question 
+        // Road in question
         public string RoadName { get; set; }
 
-        // Start / end node Ids 
+        // Start / end node Ids
         public string StartEndNodeIds { get; set; }
 
-        // Probability of road in question after update (at "current" time step) 
+        // Probability of road in question after update (at "current" time step)
         public double Probability { get; set; }
-
-        public double NonNormalizedProbability { get; set; }
 
         // Name of road it transitioned from
         public string FromName { get; set; }
@@ -272,10 +246,10 @@ namespace Snappy.MapMatching
         // Emission Probability
         public double EmissionProbability { get; set; }
 
-        //Emission distance 
+        //Emission distance
         public double EmissionDistance { get; set; }
 
-        // Probability of road in question before update 
+        // Probability of road in question before update
         public double PrevProbability { get; set; }
     }
 }

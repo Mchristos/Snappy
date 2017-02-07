@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>WhereIsMyTransport.Snappy</id>
-    <version>1.1.0</version>
+    <version>1.1.2</version>
     <title>WhereIsMyTransport Snappy</title>
     <authors>ChrisM</authors>
     <owners>ChrisM</owners>        
@@ -20,5 +20,6 @@
   </metadata>
   <files>
       <file src="bin\Release\*.dll" target="lib\net451" />
+      <file src="bin\Release\*.pdb" target="lib\net451" />
   </files>
 </package>  

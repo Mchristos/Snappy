@@ -35,7 +35,7 @@ namespace Snappy.DataStructures
             }
             else
             {
-                throw new Exception("Probability vector is zero everywhere : cannot normalize ");
+                return this;
             }
         }
 
