@@ -20,7 +20,7 @@ namespace Snappy.MapMatching
         public double Sigma { get; set; }
 
         /// <summary>
-        /// Controls how close roads must be to an input co-ordinate to be considered candidates in the map matching algorithm. 
+        /// Controls how close roads must be to an input co-ordinate to be considered candidates in the map matching algorithm. Warning : the map match update time goes like {NearbyRoadsThreshold}^4, i.e. gets A LOT slower as this number gets bigger. 
         /// </summary>
         public double NearbyRoadsThreshold { get; set; }
         

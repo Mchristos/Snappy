@@ -9,6 +9,9 @@ using System.Linq;
 
 namespace Snappy.OpenStreetMaps
 {
+    /// <summary>
+    /// Class which helps to snap GPS tracks to OSM roads. 
+    /// </summary>
     public class OsmSnapper
     {
         private string _overpassApi { get; set; }
@@ -19,9 +22,23 @@ namespace Snappy.OpenStreetMaps
 
         public OsmMapMatcher MapMatcher { get; set; }
 
-        public OsmSnapper(OverpassApi overpassApi, BoundingBox boundingBox = null,  bool printConsoleUpdates = false)
+        public MapMatcherParameters Parameters { get; set; }
+
+        /// <summary>
+        /// Initialize OsmSnapper, which allows you to snap GPS tracks to on-road geometries
+        /// </summary>
+        /// <param name="overpassApi"></param>
+        /// <param name="boundingBox"></param>
+        /// <param name="parameters"></param>
+        /// <param name="printConsoleUpdates"></param>
+        public OsmSnapper(OverpassApi overpassApi, BoundingBox boundingBox = null, MapMatcherParameters parameters = null, bool printConsoleUpdates = false)
         {
             _printConsoleUpdates = printConsoleUpdates;
+            if(parameters == null)
+            {
+                parameters = MapMatcherParameters.Default;
+            }
+            Parameters = parameters;
 
             if (overpassApi == OverpassApi.DeloreanGray) _overpassApi = Config.Urls.DeloreanGray;
             else if (overpassApi == OverpassApi.MainOverpass) _overpassApi = Config.Urls.MainOverpassApi;
@@ -32,13 +49,21 @@ namespace Snappy.OpenStreetMaps
                 SnappingArea = boundingBox;
                 // Build graph in bounding box and initialize map matcher (involves computing search grid data structure) 
                 var graph = OsmGraphBuilder.BuildInRegion(_overpassApi, boundingBox);
-                MapMatcher = new OsmMapMatcher(graph);
+                MapMatcher = new OsmMapMatcher(graph, parameters);
             }
         }
 
-        public List<List<Coord>> SnapDat(List<Coord> coords, List<DateTime> timeStamps = null, bool highwayTags = true, bool railTags = true)
+        /// <summary>
+        /// Snaps track to OSM roads. Returns a list of snapped geometries - if it fails to find one continuous OSM geometry corresponding to the track, the list contain more than one geometry. 
+        /// </summary>
+        /// <param name="track"></param>
+        /// <param name="timeStamps"></param>
+        /// <param name="highwayTags"></param>
+        /// <param name="railTags"></param>
+        /// <returns> List of snapped geometries. If it fails to find one continuous OSM geometry corresponding to the track, the list contains more than one geometry. Otherwise count = 1</returns>
+        public List<List<Coord>> SnapDat(List<Coord> track, List<DateTime> timeStamps = null, bool highwayTags = true, bool railTags = true)
         {
-            if (coords.Count < 2) { throw new ArgumentException("Sequence has less than two co-ordinates."); }
+            if (track.Count < 2) { throw new ArgumentException("Sequence has less than two co-ordinates."); }
 
             var result = new List<List<Coord>>();
 
@@ -51,10 +76,10 @@ namespace Snappy.OpenStreetMaps
             if(MapMatcher == null)
             {
                 // Build graph in region and initialize map matcher
-                BoundingBox boundingBox = coords.GetBoundingBox(DefaultValues.GPS_Error_In_Meters);
+                BoundingBox boundingBox = track.GetBoundingBox(DefaultValues.GPS_Error_In_Meters);
                 var osmGraph = OsmGraphBuilder.BuildInRegion(_overpassApi, boundingBox, highwayTags, railTags);
 
-                mapMatcher = new OsmMapMatcher(osmGraph);
+                mapMatcher = new OsmMapMatcher(osmGraph, Parameters);
             }
             else
             {
@@ -66,7 +91,7 @@ namespace Snappy.OpenStreetMaps
             performSnapStopwatch.Start();
 
             // Clean input co-ordinates
-            var cleanedCoords = coords.GetCleanedCoordinates(timeStamps);
+            var cleanedCoords = track.GetCleanedCoordinates(timeStamps);
 
             // Initialize snap summary & list for update times
             var snapSummary = new SnapSummary();

@@ -20,7 +20,7 @@ namespace Snappy.XunitTests
             var coords = Geometry.GeometryAlongVikingWay.ToCoordList();
             var boundingBox = coords.GetBoundingBox();
             var roadgraph = OpenStreetMaps.OsmGraphBuilder.BuildInRegion(Config.Urls.MainOverpassApi, boundingBox);
-            var mapmatcher = new OsmMapMatcher(roadgraph);
+            var mapmatcher = new OsmMapMatcher(roadgraph, MapMatcherParameters.Default);
 
             foreach (var coord in coords)
             {
