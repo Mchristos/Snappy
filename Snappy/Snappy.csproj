@@ -80,11 +80,12 @@
     <Compile Include="Functions\MathExtensions.cs" />
     <Compile Include="Functions\PathFinding.cs" />
     <Compile Include="Functions\ProbabilityFunctions.cs" />
+    <Compile Include="MapMatching\CandidateInfo.cs" />
     <Compile Include="MapMatching\Emission.cs" />
     <Compile Include="MapMatching\MapState.cs" />
     <Compile Include="MapMatching\MapMatcherParameters.cs" />
     <Compile Include="MapMatching\Transition.cs" />
-    <Compile Include="MapMatching\UpdateAnalytics.cs" />
+    <Compile Include="MapMatching\UpdateInfo.cs" />
     <Compile Include="MapMatching\MapMatcher.cs" />
     <Compile Include="MapMatching\MapMatchState.cs" />
     <Compile Include="MapMatching\MarkovProbabilityHelpers.cs" />
