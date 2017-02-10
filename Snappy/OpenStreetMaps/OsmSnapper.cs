@@ -63,7 +63,7 @@ namespace Snappy.OpenStreetMaps
         /// <returns> List of snapped geometries. If it fails to find one continuous OSM geometry corresponding to the track, the list contains more than one geometry. Otherwise count = 1</returns>
         public List<List<Coord>> SnapDat(List<Coord> track, List<DateTime> timeStamps = null, bool highwayTags = true, bool railTags = true)
         {
-            if (track.Count < 2) { throw new ArgumentException("Sequence has less than two co-ordinates."); }
+            if (track.Count < 2) { return new List<List<Coord>>() { track }; }
 
             var result = new List<List<Coord>>();
 
