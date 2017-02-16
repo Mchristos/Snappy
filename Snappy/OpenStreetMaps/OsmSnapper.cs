@@ -24,6 +24,8 @@ namespace Snappy.OpenStreetMaps
 
         public MapMatcherParameters Parameters { get; set; }
 
+        public SnapSummary SnapSummary { get; set; }
+
         /// <summary>
         /// Initialize OsmSnapper, which allows you to snap GPS tracks to on-road geometries
         /// </summary>
@@ -94,8 +96,8 @@ namespace Snappy.OpenStreetMaps
             var cleanedCoords = track.GetCleanedCoordinates(timeStamps);
 
             // Initialize snap summary & list for update times
-            var snapSummary = new SnapSummary();
-            snapSummary.UpdateCount = cleanedCoords.Count;
+            SnapSummary = new SnapSummary();
+            SnapSummary.UpdateCount = cleanedCoords.Count;
             var updateTimesInMilliseconds = new List<double>();
 
             int startIndex = 0;
@@ -109,7 +111,7 @@ namespace Snappy.OpenStreetMaps
                 }
                 else
                 {
-                    snapSummary.BreakCount += 1;
+                    SnapSummary.BreakCount += 1;
                     breakIndex = i;
                     if(startIndex < breakIndex)
                     {
@@ -129,15 +131,13 @@ namespace Snappy.OpenStreetMaps
 
             // Snap summary values
             performSnapStopwatch.Stop();
-            snapSummary.PerformSnapTimeInSeconds = performSnapStopwatch.Elapsed.TotalSeconds;
+            SnapSummary.PerformSnapTimeInSeconds = performSnapStopwatch.Elapsed.TotalSeconds;
             totalTimeStopwatch.Stop();
-            snapSummary.TotalSnapTimeInSeconds = totalTimeStopwatch.Elapsed.TotalSeconds;
-            snapSummary.MeanUpdateTimeInMilliseconds = updateTimesInMilliseconds.Average();
-
-            SnappedAnalytics = snapSummary;
+            SnapSummary.TotalSnapTimeInSeconds = totalTimeStopwatch.Elapsed.TotalSeconds;
+            SnapSummary.MeanUpdateTimeInMilliseconds = updateTimesInMilliseconds.Average();
 
             // Print summary info to the console
-            snapSummary.PrintSummaryToConsole();
+            SnapSummary.PrintSummaryToConsole();
 
             return result;
         }
