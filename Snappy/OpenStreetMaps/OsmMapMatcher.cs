@@ -6,9 +6,13 @@ namespace Snappy.OpenStreetMaps
 {
     public class OsmMapMatcher : MapMatcher<DirectedRoad>
     {
-        public OsmMapMatcher(RoadGraph graph)
+        public OsmMapMatcher(RoadGraph graph, MapMatcherParameters parameters = null)
         {
-            Parameters = MapMatcherParameters.Default;
+            if(parameters == null)
+            {
+                parameters = MapMatcherParameters.Default;
+            }
+            Parameters = parameters;
             SearchGrid = SearchGridFactory.ComputeSearchGrid(graph, DefaultValues.Nearby_Road_Radius_In_Meters);
             Graph = graph;
             State = MapMatchState.InitialState();

@@ -91,6 +91,11 @@ namespace Snappy.ValueObjects
             return new Distance(a.DistanceInMeters * b.DistanceInMeters);
         }
 
+        public static Distance operator /(Distance a, double b)
+        {
+            return new Distance(a.DistanceInMeters / b);
+        }
+
         public static Distance Add(Distance a, Distance b)
         {
             return new Distance(a.DistanceInMeters + b.DistanceInMeters);
