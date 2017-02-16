@@ -38,7 +38,7 @@ namespace Snappy.OpenStreetMaps
             }
         }
 
-        public List<List<Coord>> SnapDat(List<Coord> coords, List<DateTime> timeStamps = null, bool highwayTags = true, bool railTags = true)
+        public List<List<Coord>> SnapDat(List<Coord> coords, List<DateTime> timeStamps = null, bool highwayTags = true, bool railTags = false)
         {
             if (coords.Count < 2) { throw new ArgumentException("Sequence has less than two co-ordinates."); }
 
@@ -191,5 +191,41 @@ namespace Snappy.OpenStreetMaps
             Console.WriteLine("Map match breaks:         {0}", BreakCount);
             Console.WriteLine("--------------------------------------------------");
         }
+
+        public string GetSummary(string FilneName)
+        {
+            string theThing = "------------------ Snap Summary ------------------ \n" +
+                    $"File Name:                {FilneName} \n" +               
+                    $"Total snap time:          { TotalSnapTimeInSeconds} seconds \n" +
+                    $"Time to perform snapping: {PerformSnapTimeInSeconds} seconds \n" +
+                    $"Updates performed:        {UpdateCount} \n" +
+                    $"Mean update time:         {MeanUpdateTimeInMilliseconds}ms \n" +
+                    $"Map match breaks:         { BreakCount} \n";
+            
+            return theThing;
+        }
+        public string GetEntryCSVSummary(string FilneName, string MatchedStatus, List<Coord> gpxTrack)
+
+        {
+            var numberOfPoints = gpxTrack.Count;
+            List<double> pointArray = new List<double>();
+
+            for (int i = 1; i < gpxTrack.Count; i++)
+            {
+                var distance = DistanceFunctions.FasterHaversineDistance(gpxTrack[i - 1], gpxTrack[i]);
+                pointArray.Add(distance);
+            }
+
+            double maxDistance = pointArray.Max();
+            double minDistance = pointArray.Min();
+            double meandistance = pointArray.Sum() / pointArray.Count;
+
+
+            string theThing = $" {FilneName}, {TotalSnapTimeInSeconds}, {PerformSnapTimeInSeconds}, {UpdateCount}, {MeanUpdateTimeInMilliseconds}, {BreakCount}, {numberOfPoints}, {maxDistance}, {minDistance}, {meandistance}, {MatchedStatus} \n";
+
+            return theThing;
+        }
+
+
     }
 }

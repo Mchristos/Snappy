@@ -12,7 +12,7 @@ namespace Snappy.Config
 
         /****************************  map matching parameters ****************************/
         public const double Sigma_Value_In_Meters_For_Emissions = GPS_Error_In_Meters;
-        public const double Nearby_Road_Radius_In_Meters = 20;
+        public const double Nearby_Road_Radius_In_Meters = 60;
 
         public const double Beta_For_Transitions_In_Meters = 5;
         public const double Difference_Threshold_For_Transitions_In_Meters = 1000;
