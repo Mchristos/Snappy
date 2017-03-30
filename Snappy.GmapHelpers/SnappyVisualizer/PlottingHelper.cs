@@ -283,7 +283,7 @@ namespace Snappy.GmapHelpers
             }
         }
 
-        public static void PlotCircle(Coord center, double radiusInMeters, int segments, GMapOverlay overlay)
+        public static void PlotCircle(Coord center, double radiusInMeters, int segments, GMapOverlay overlay, Color color = default(Color), int outlineWidth = -1)
         {
             List<PointLatLng> gpollist = new List<PointLatLng>();
 
@@ -302,6 +302,17 @@ namespace Snappy.GmapHelpers
                 gpollist.Add(gpoi);
             }
             GMapPolygon gpol = new GMapPolygon(gpollist, "pol");
+
+            if (color != default(Color))
+            {
+                gpol.Stroke.Color = color;
+                gpol.Fill = new SolidBrush(Color.FromArgb(50, color));
+            }
+
+            if (outlineWidth != -1)
+            {
+                gpol.Stroke.Width = outlineWidth;
+            }
 
             overlay.Polygons.Add(gpol);
         }

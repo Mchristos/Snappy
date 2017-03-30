@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{723DABAC-B831-42DB-B691-49D1DDAB9FFE}</ProjectGuid>
+    <ProjectGuid>{C74B5FBD-F502-4267-955F-8D0A03CAFAAB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Snappy</RootNamespace>
