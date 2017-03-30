@@ -50,6 +50,14 @@ namespace Snappy.DataStructures
                 {
                     int x = cell[0];
                     int y = cell[1];
+                    if (!this.ContainsKey(x))
+                    {
+                        this[x] = new Dictionary<int, List<DirectedRoad>>();
+                    }
+                    if (!this[x].ContainsKey(y))
+                    {
+                        this[x][y] = new List<DirectedRoad>();
+                    }
                     this[x][y].Add(road);
                 }
             }

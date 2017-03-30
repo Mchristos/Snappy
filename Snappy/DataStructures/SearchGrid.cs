@@ -25,17 +25,6 @@ namespace Snappy.DataStructures
             GridSizeY = gridSizeY;
             CellCountX = cellCountX;
             CellCountY = cellCountY;
-
-            //Initialize dictionary entries
-            for (int i = 0; i < cellCountX; i++)
-            {
-                this[i] = new Dictionary<int, List<T>>();
-                for (int j = 0; j < cellCountY; j++)
-                {
-                    this[i][j] = new List<T>();
-                }
-            }
-
         }
 
         public int[] GetGridCellOfPoint(double x, double y)
@@ -58,9 +47,15 @@ namespace Snappy.DataStructures
             int[] gridcell = GetGridCellOfPoint(queryX, queryY);
             List<int[]> cells = gridcell.GetSurroundingCells(CellCountX, CellCountY);
             foreach (var cell in cells)
-            {
-                var valuesInCell = this[cell[0]][cell[1]];
-                result.UnionWith(valuesInCell);
+            {                
+                if (this.ContainsKey(cell[0]))
+                {
+                    if (this[cell[0]].ContainsKey(cell[1]))
+                    {
+                        var valuesInCell = this[cell[0]][cell[1]];
+                        result.UnionWith(valuesInCell);
+                    }
+                }       
             }
             return result.ToList();
         }
