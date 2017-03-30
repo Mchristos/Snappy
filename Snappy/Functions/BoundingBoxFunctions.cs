@@ -1,4 +1,5 @@
 ﻿using Snappy.ValueObjects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -95,6 +96,13 @@ namespace Snappy.Functions
         {
             return (box.LatLowerBound < point.Latitude && point.Latitude < box.LatUpperBound
                  && box.LngLowerBound < point.Longitude && point.Longitude < box.LngUpperBound);
+        }
+
+        public static double AreaInMetersSquared(this BoundingBox box)
+        {
+            var deltaLng = (box.LngUpperBound - box.LngLowerBound).ToRadians();
+            var deltaLat = Math.Sin(box.LatUpperBound.ToRadians()) - Math.Sin(box.LatLowerBound);
+            return Config.Constants.Earth_Radius_In_Meters * Config.Constants.Earth_Radius_In_Meters * deltaLat * deltaLng;
         }
     }
 }
