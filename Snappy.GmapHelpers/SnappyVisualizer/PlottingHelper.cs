@@ -303,16 +303,22 @@ namespace Snappy.GmapHelpers
             }
             GMapPolygon gpol = new GMapPolygon(gpollist, "pol");
 
+            Pen gpolPen = (Pen)gpol.Stroke.Clone();
+            Brush gpolFill = (Brush)gpol.Fill.Clone();
+
             if (color != default(Color))
             {
-                gpol.Stroke.Color = color;
-                gpol.Fill = new SolidBrush(Color.FromArgb(50, color));
+                gpolPen.Color = color;
+                gpolFill = new SolidBrush(Color.FromArgb(50, color));
             }
 
             if (outlineWidth != -1)
             {
-                gpol.Stroke.Width = outlineWidth;
+                gpolPen.Width = outlineWidth;
             }
+
+            gpol.Stroke = gpolPen;
+            gpol.Fill = gpolFill;
 
             overlay.Polygons.Add(gpol);
         }
