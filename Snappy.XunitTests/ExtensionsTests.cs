@@ -49,13 +49,20 @@ namespace Snappy.XunitTests
         [Fact]
         public void InclusivePartitionWithPredicate_Expected()
         {
-            // Test 1 
+            // Test 1 : split at ones
             var input1 = new List<int>() { 1, 0, 0, 1, 0, 0, 1};
             var result1 = input1.InclusivePartitioning(x => x == 1);
             var onezerozeroone = new List<int>() { 1,0,0,1};
             var expected1 = new List<List<int>>() { onezerozeroone, onezerozeroone };
 
+            //Test 2 : split always
+            var input2 = new List<int>() { 1, 2, 3, 4, 5};
+            var result2 = input2.InclusivePartitioning(x => true);
+            var expected2 = new List<List<int>>() { new List<int>() { 1, 2 }, new List<int>() { 2, 3 }, new List<int>() { 3, 4 }, new List<int>() { 4, 5 }, };
+
+            //Assert
             Assert.Equal(result1, expected1);
+            Assert.Equal(result2, expected2);
         }
 
     }
