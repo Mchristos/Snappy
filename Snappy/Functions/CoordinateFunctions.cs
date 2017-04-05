@@ -58,18 +58,29 @@ namespace Snappy.Functions
         /// <returns> List of points defining the approximating polyline.  </returns>
         public static List<Coord> DouglasPeucker(this IEnumerable<Coord> polyline, double epsilon)
         {
-            var list = polyline.ToList();
-            if (list.Count <= 2)
+            List<Tuple<Coord, int>> indexedList = new List<Tuple<Coord, int>>();
+            var coordList = polyline.ToList();
+            for (int i = 0; i < coordList.Count; i++)
             {
-                return list;
+                var tuple = new Tuple<Coord, int>(coordList[i], i);
+                indexedList.Add(tuple);
             }
-            Coord start = list.First();
-            Coord end = list.Last();
-            double maxdist = 0;
-            int maxindex = new int();
-            for (int i = 1; i < list.Count - 1; i++)
+            return DouglasPeucker(indexedList, epsilon).Select(x => x.Item1).ToList();         
+        }
+
+        public static List<Tuple<Coord, int>> DouglasPeucker(this List<Tuple<Coord, int>> source, double epsilon)
+        {
+            if (source.Count <= 2)
             {
-                Coord point = list[i];
+                return source;
+            }
+            Coord start = source.First().Item1;
+            Coord end = source.Last().Item1;
+            double maxdist = 0;
+            int maxindex = -1;
+            for (int i = 1; i < source.Count - 1; i++)
+            {
+                Coord point = source[i].Item1;
                 Coord projection = point.SnapToSegment(start, end);
                 double dist = point.HaversineDistance(projection).DistanceInMeters;
                 if (dist > maxdist)
@@ -80,15 +91,17 @@ namespace Snappy.Functions
             }
             if (maxdist < epsilon)
             {
-                return new List<Coord> { start, end };
+                return new List<Tuple<Coord, int>> { source.First(), source.Last()};
             }
             else
             {
-                List<Coord> first = list.Take(maxindex + 1).ToList();
-                List<Coord> tail = list.GetRange(maxindex, list.Count - maxindex);
+                List<Tuple<Coord, int>> first = source.Take(maxindex + 1).ToList();
+                List<Tuple<Coord, int>> tail = source.GetRange(maxindex, source.Count - maxindex);
                 return DouglasPeucker(first, epsilon).Concat(DouglasPeucker(tail, epsilon).GetRange(1, DouglasPeucker(tail, epsilon).Count - 1)).ToList();
             }
         }
+
+
         public static Snappy.ValueObjects.Coord ComputeCenter(this IEnumerable<Coord> coords)
         {
             var meanLat = coords.Select(x => x.Latitude).Average();
