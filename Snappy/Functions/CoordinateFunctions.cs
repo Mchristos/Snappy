@@ -56,19 +56,20 @@ namespace Snappy.Functions
         /// <param name="epsilon"> Margin of error in meters. No point in the input polyline will be further than epsilon away from the resulting output polyline.
         /// </param>
         /// <returns> List of points defining the approximating polyline.  </returns>
-        public static List<Coord> DouglasPeucker(this List<Coord> polyline, double epsilon)
+        public static List<Coord> DouglasPeucker(this IEnumerable<Coord> polyline, double epsilon)
         {
-            if (polyline.Count <= 2)
+            var list = polyline.ToList();
+            if (list.Count <= 2)
             {
-                return polyline;
+                return list;
             }
-            Coord start = polyline.First();
-            Coord end = polyline.Last();
+            Coord start = list.First();
+            Coord end = list.Last();
             double maxdist = 0;
             int maxindex = new int();
-            for (int i = 1; i < polyline.Count - 1; i++)
+            for (int i = 1; i < list.Count - 1; i++)
             {
-                Coord point = polyline[i];
+                Coord point = list[i];
                 Coord projection = point.SnapToSegment(start, end);
                 double dist = point.HaversineDistance(projection).DistanceInMeters;
                 if (dist > maxdist)
@@ -83,8 +84,8 @@ namespace Snappy.Functions
             }
             else
             {
-                List<Coord> first = polyline.Take(maxindex + 1).ToList();
-                List<Coord> tail = polyline.GetRange(maxindex, polyline.Count - maxindex);
+                List<Coord> first = list.Take(maxindex + 1).ToList();
+                List<Coord> tail = list.GetRange(maxindex, list.Count - maxindex);
                 return DouglasPeucker(first, epsilon).Concat(DouglasPeucker(tail, epsilon).GetRange(1, DouglasPeucker(tail, epsilon).Count - 1)).ToList();
             }
         }
