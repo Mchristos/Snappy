@@ -31,6 +31,27 @@ namespace Snappy.Functions
             return new BoundingBox(lngs.Min() - lngMargin, lats.Min() - latMargin, lngs.Max() + lngMargin, lats.Max() + latMargin);
         }
 
+
+        public static List<BoundingBox> GetSmartBoundingBoxes(this IEnumerable<Coord> coordinates)
+        {
+            int splitFactor = 1;
+            while (true)
+            {
+                var splitting = coordinates.ExclusivePartition(splitFactor);
+                //Check whether bounding box for each splitting is small enough. 
+                var boundingBoxes = splitting.Select(x => x.GetBoundingBox()).ToList();
+                var valid = boundingBoxes.TrueForAll(x => x.AreaInMetersSquared() < Config.DefaultValues.Too_Large_BoundingBox_In_Meters_Squared);
+                if (valid)
+                {
+                    return boundingBoxes;
+                }
+                else
+                {
+                    splitFactor += 1;
+                }
+            }     
+        }
+
         /// <summary>
         /// Groups together overlapping boundingBoxes
         /// </summary>
@@ -101,8 +122,8 @@ namespace Snappy.Functions
         public static double AreaInMetersSquared(this BoundingBox box)
         {
             var deltaLng = (box.LngUpperBound - box.LngLowerBound).ToRadians();
-            var deltaLat = Math.Sin(box.LatUpperBound.ToRadians()) - Math.Sin(box.LatLowerBound);
-            return Config.Constants.Earth_Radius_In_Meters * Config.Constants.Earth_Radius_In_Meters * deltaLat * deltaLng;
+            var deltaLat = Math.Sin(box.LatUpperBound.ToRadians()) - Math.Sin(box.LatLowerBound.ToRadians());
+            return Math.Abs(Config.Constants.Earth_Radius_In_Meters * Config.Constants.Earth_Radius_In_Meters * deltaLat * deltaLng);
         }
     }
 }

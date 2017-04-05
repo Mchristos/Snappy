@@ -50,7 +50,7 @@ namespace Snappy.OpenStreetMaps
             {
                 SnappingArea = boundingBox;
                 // Build graph in bounding box and initialize map matcher (involves computing search grid data structure) 
-                var graph = OsmGraphBuilder.BuildInRegion(_overpassApi, boundingBox);
+                var graph = OsmGraphBuilder.BuildInRegion(_overpassApi, boundingBox );
                 MapMatcher = new OsmMapMatcher(graph, parameters);
             }
         }
@@ -78,8 +78,8 @@ namespace Snappy.OpenStreetMaps
             if(MapMatcher == null)
             {
                 // Build graph in region and initialize map matcher
-                BoundingBox boundingBox = track.GetBoundingBox(DefaultValues.GPS_Error_In_Meters);
-                var osmGraph = OsmGraphBuilder.BuildInRegion(_overpassApi, boundingBox, highwayTags, railTags);
+                var boundingBoxes = track.GetSmartBoundingBoxes();                
+                var osmGraph = OsmGraphBuilder.BuildInRegion(_overpassApi, boundingBoxes, highwayTags, railTags);
 
                 mapMatcher = new OsmMapMatcher(osmGraph, Parameters);
             }

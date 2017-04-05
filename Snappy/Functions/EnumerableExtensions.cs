@@ -7,29 +7,59 @@ namespace Snappy.Functions
     public static class EnumerableExtensions
     {
         /// <summary>
+        /// Partitions a list into specified number of partitions
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="partitions"></param>
+        /// <param name="exclusive"> Specifies whether partitioning is exclusive or inclusive </param>
+        /// <returns></returns>
+        public static List<List<T>> ExclusivePartition<T>(this IEnumerable<T> source, int partitions)
+        {
+            int count = source.Count();
+            var size = count / partitions;
+            if (size < 1) return new List<List<T>>() { source.ToList() };            
+            if(count % size != 0)
+            {
+                size += 1;
+            }
+            var result = new List<List<T>>(); 
+            while (source.Count() > 1)
+            {
+                var part = source.Take(size);
+                result.Add(part.ToList());
+                source = source.Skip(size);
+            }
+            return result;
+        }
+
+
+
+        /// <summary>
         /// Breaks up a list at the values where the predicate evaluates to true. the breaking point is included
         /// in "both sides" of the partitioning
         /// e.g. [0,0,1,0,0,1,0,0] with predicate "equals 1" ==> [ [0,0,1],[1,0,0,1],[1,0,0] ]
         /// </summary>
-        /// <param name="array"></param>
+        /// <param name="source"></param>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public static List<T[]> InclusivePartitioning<T>(this T[] array, Func<T, bool> predicate)
+        public static List<List<T>> InclusivePartitioning<T>(this IEnumerable<T> source, Func<T, bool> predicate)
         {
-            if (array.Length < 3) { return new List<T[]>() { array }; };
-            var result = new List<T[]>();
+            if (source.Count() < 3) { return new List<List<T>>() { source.ToList() }; };
+            var result = new List<List<T>>();
             int i = 1;
-            while (i < array.Length)
+            var list = source.ToList();           
+            while (i < list.Count)
             {
-                if (i == array.Length - 1)
+                if (i == list.Count - 1)
                 {
-                    result.Add(array);
+                    result.Add(list);
                     break;
                 }
-                if (predicate(array[i]))
+                if (predicate(list[i]))
                 {
-                    result.Add(array.Take(i + 1).ToArray());
-                    result.AddRange(InclusivePartitioning(array.Skip(i).ToArray(), predicate));
+                    result.Add(list.Take(i + 1).ToList());
+                    result.AddRange(InclusivePartitioning(source.Skip(i), predicate));
                     break;
                 }
                 i += 1;
@@ -97,5 +127,8 @@ namespace Snappy.Functions
                 return result;
             }
         }
+
+
+
     }
 }

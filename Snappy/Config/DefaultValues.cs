@@ -21,6 +21,7 @@ namespace Snappy.Config
         /****************************  threshold values ****************************/
         public const double Dijstra_Upper_Search_Limit_In_Meters                    = 1000;
         public const double Too_Fast_In_Kilometres_Per_Hour_For_Coordinate_Cleaning = 200;
+        public const double Too_Large_BoundingBox_In_Meters_Squared = 1E9;
         /****************************  ________________ ****************************/
     }
 }

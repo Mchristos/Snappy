@@ -11,19 +11,36 @@ namespace Snappy.OpenStreetMaps
     {
         public static RoadGraph BuildInRegion(string apiUrl, BoundingBox boundingBox, bool highwayTags = true, bool railTags = true)
         {
-            string response = OsmHelpers.GetOsmResponse(apiUrl, boundingBox, highwayTags, railTags);
+            return BuildInRegion(apiUrl, new List<BoundingBox>() { boundingBox }, highwayTags, railTags); 
+        }
+        public static RoadGraph BuildInRegion(string apiUrl, List<BoundingBox> boundingBoxes, bool highwayTags = true, bool railTags = true)
+        {
+            var allOsmElements = new List<Element>();
+            foreach (var box in boundingBoxes)
+            {
+                string response = OsmHelpers.GetOsmResponse(apiUrl, box, highwayTags, railTags);
+                var elements = OsmHelpers.GetOsmElements(response);
+                allOsmElements.AddRange(elements);
+            }
+            var graph = BuildGraph(allOsmElements);
+            return graph;
+        }
+        /// <summary>
+        /// Build graph from OSM elements. May contains duplicated elements (from multiple calls) 
+        /// </summary>
+        /// <param name="elements"></param>
+        /// <returns></returns>
+        private static RoadGraph BuildGraph(List<Element> elements)
+        {
+            RoadGraph result = new RoadGraph();
 
-            // Build graph from API response 
-
-            var stopwatch = new System.Diagnostics.Stopwatch();
-            stopwatch.Start();
-
-            var elements = OsmHelpers.GetOsmElements(response);
-            List<Way> ways = elements.Where(x => x is Way).Select(x => x as Way).ToList();
-            var nodeLookup = elements.Where(x => x is OsmNode).Select(x => x as OsmNode).ToDictionary(x => x.Id, y => y);
+            IEnumerable<Way> ways = elements.Where(x => x is Way).Select(x => x as Way).Distinct();
+            var nodeLookup = new Dictionary<long, OsmNode>();
+            foreach (var node in elements.Where(x => x is OsmNode).Select(x => x as OsmNode))
+            {
+                nodeLookup[node.Id] = node;
+            }
             var intersectionCounter = ways.Select(x => x.Nodes).CountRepeatedIds();
-            // build graph
-            RoadGraph graph = new RoadGraph();
             foreach (var way in ways)
             {
                 string wayName = way.ParseName();
@@ -32,18 +49,17 @@ namespace Snappy.OpenStreetMaps
                 {
                     var roadShape = subway.Select(id => nodeLookup[id].ToCoord()).ToList();
                     DirectedRoad road = new DirectedRoad(subway.First().ToString(), subway.Last().ToString(), roadShape, wayName);
-                    graph.AddRoad(road);
+                    result.AddRoad(road);
                     if (!way.IsOneWay())
                     {
                         DirectedRoad reverseRoad = road.Reverse();
-                        graph.AddRoad(reverseRoad);
+                        result.AddRoad(reverseRoad);
                     }
                 }
             }
 
-            stopwatch.Stop();
-            Console.WriteLine(stopwatch.Elapsed.TotalSeconds + " seconds to build OSM road graph.");
-            return graph;
+            return result;
         }
+
     }
 }

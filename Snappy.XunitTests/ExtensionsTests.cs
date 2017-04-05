@@ -46,6 +46,17 @@ namespace Snappy.XunitTests
             Assert.Contains(expectedCell4, result);
         }
 
+        [Fact]
+        public void InclusivePartitionWithPredicate_Expected()
+        {
+            // Test 1 
+            var input1 = new List<int>() { 1, 0, 0, 1, 0, 0, 1};
+            var result1 = input1.InclusivePartitioning(x => x == 1);
+            var onezerozeroone = new List<int>() { 1,0,0,1};
+            var expected1 = new List<List<int>>() { onezerozeroone, onezerozeroone };
+
+            Assert.Equal(result1, expected1);
+        }
 
     }
 }
