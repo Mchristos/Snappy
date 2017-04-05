@@ -9,11 +9,11 @@ namespace Snappy.OpenStreetMaps
 {
     public static class OsmGraphBuilder
     {
-        public static RoadGraph BuildInRegion(string apiUrl, BoundingBox boundingBox, bool highwayTags = true, bool railTags = true)
+        public static RoadGraph BuildInRegion(string apiUrl, BoundingBox boundingBox, bool highwayTags = true, bool railTags = true, bool ignoreOneWAys = false)
         {
-            return BuildInRegion(apiUrl, new List<BoundingBox>() { boundingBox }, highwayTags, railTags); 
+            return BuildInRegion(apiUrl, new List<BoundingBox>() { boundingBox }, highwayTags, railTags, ignoreOneWAys); 
         }
-        public static RoadGraph BuildInRegion(string apiUrl, List<BoundingBox> boundingBoxes, bool highwayTags = true, bool railTags = true)
+        public static RoadGraph BuildInRegion(string apiUrl, List<BoundingBox> boundingBoxes, bool highwayTags = true, bool railTags = true, bool ignoreOneWays = false)
         {
             var allOsmElements = new List<Element>();
             foreach (var box in boundingBoxes)
@@ -22,7 +22,7 @@ namespace Snappy.OpenStreetMaps
                 var elements = OsmHelpers.GetOsmElements(response);
                 allOsmElements.AddRange(elements);
             }
-            var graph = BuildGraph(allOsmElements);
+            var graph = BuildGraph(allOsmElements, ignoreOneWays);
             return graph;
         }
         /// <summary>
@@ -30,7 +30,7 @@ namespace Snappy.OpenStreetMaps
         /// </summary>
         /// <param name="elements"></param>
         /// <returns></returns>
-        private static RoadGraph BuildGraph(List<Element> elements)
+        private static RoadGraph BuildGraph(List<Element> elements, bool ignoreOneWays)
         {
             RoadGraph result = new RoadGraph();
 
@@ -50,7 +50,7 @@ namespace Snappy.OpenStreetMaps
                     var roadShape = subway.Select(id => nodeLookup[id].ToCoord()).ToList();
                     DirectedRoad road = new DirectedRoad(subway.First().ToString(), subway.Last().ToString(), roadShape, wayName);
                     result.AddRoad(road);
-                    if (!way.IsOneWay())
+                    if (!way.IsOneWay() || ignoreOneWays)
                     {
                         DirectedRoad reverseRoad = road.Reverse();
                         result.AddRoad(reverseRoad);

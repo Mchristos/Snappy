@@ -63,7 +63,7 @@ namespace Snappy.OpenStreetMaps
         /// <param name="highwayTags"></param>
         /// <param name="railTags"></param>
         /// <returns> List of snapped geometries. If it fails to find one continuous OSM geometry corresponding to the track, the list contains more than one geometry. Otherwise count = 1</returns>
-        public List<List<Coord>> SnapDat(List<Coord> track, List<DateTime> timeStamps = null, bool highwayTags = true, bool railTags = true)
+        public List<List<Coord>> SnapDat(List<Coord> track, List<DateTime> timeStamps = null, bool highwayTags = true, bool railTags = true, bool ignoreOneWays = false)
         {
             if (track.Count < 2) { return new List<List<Coord>>() { track }; }
 
@@ -79,8 +79,7 @@ namespace Snappy.OpenStreetMaps
             {
                 // Build graph in region and initialize map matcher
                 var boundingBoxes = track.GetSmartBoundingBoxes();                
-                var osmGraph = OsmGraphBuilder.BuildInRegion(_overpassApi, boundingBoxes, highwayTags, railTags);
-
+                var osmGraph = OsmGraphBuilder.BuildInRegion(_overpassApi, boundingBoxes, highwayTags, railTags, ignoreOneWays);
                 mapMatcher = new OsmMapMatcher(osmGraph, Parameters);
             }
             else
