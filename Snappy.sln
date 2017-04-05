@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snappy", "Snappy\Snappy.csproj", "{723DABAC-B831-42DB-B691-49D1DDAB9FFE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snappy", "Snappy\Snappy.csproj", "{C74B5FBD-F502-4267-955F-8D0A03CAFAAB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snappy.XunitTests", "Snappy.XunitTests\Snappy.XunitTests.csproj", "{C79C50F8-04F2-418D-97ED-70C05124036D}"
 EndProject
