@@ -47,7 +47,8 @@ namespace Snappy.OpenStreetMaps
                 var subways = way.Nodes.InclusivePartitioning(id => intersectionCounter[id] > 1);
                 foreach (var subway in subways)
                 {
-                    var roadShape = subway.Select(id => nodeLookup[id].ToCoord()).ToList();
+                    // TODO : why are ids not in dictinoary sometimes? Data problem? 
+                    var roadShape = subway.Where(id => nodeLookup.ContainsKey(id)).Select(id => nodeLookup[id].ToCoord()).ToList();
                     DirectedRoad road = new DirectedRoad(subway.First().ToString(), subway.Last().ToString(), roadShape, wayName);
                     result.AddRoad(road);
                     if (!way.IsOneWay() || ignoreOneWays)
