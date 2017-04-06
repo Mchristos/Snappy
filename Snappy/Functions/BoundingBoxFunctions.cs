@@ -31,25 +31,52 @@ namespace Snappy.Functions
             return new BoundingBox(lngs.Min() - lngMargin, lats.Min() - latMargin, lngs.Max() + lngMargin, lats.Max() + latMargin);
         }
 
-
-        public static List<BoundingBox> GetSmartBoundingBoxes(this IEnumerable<Coord> coordinates)
+        /// <summary>
+        /// Finds a list of bounding boxes covering the input list of co-ordinates, by recursively splitting the co-ordinate list
+        /// and checking that the resulting bounding boxes are smaller than the threshold area. 
+        /// Note : it is possible for this method to return bounding boxes larger than the threshold area! This happens if two successive
+        /// co-ordinates are very far apart. 
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="thresholdAreaInMetersSquared"></param>
+        /// <returns> Covering set of bounding boxes </returns>
+        private static List<BoundingBox> RecursivelyComputeCoveringBoundingBoxes(List<IEnumerable<Coord>> input, double thresholdAreaInMetersSquared)
         {
-            int splitFactor = 1;
-            while (true)
+            var result = new List<BoundingBox>();
+            foreach (var part in input)
             {
-                var splitting = coordinates.ExclusivePartition(splitFactor);
-                //Check whether bounding box for each splitting is small enough. 
-                var boundingBoxes = splitting.Select(x => x.GetBoundingBox()).ToList();
-                var valid = boundingBoxes.TrueForAll(x => x.AreaInMetersSquared() < Config.DefaultValues.Too_Large_BoundingBox_In_Meters_Squared);
-                if (valid)
+                var box = part.GetBoundingBox();
+                if(box.AreaInMetersSquared() < thresholdAreaInMetersSquared || part.Count() < 3)
                 {
-                    return boundingBoxes;
+                    result.Add(box);
                 }
                 else
                 {
-                    splitFactor += 1;
+                    // split coordinates in two 
+                    int half = (part.Count() / 2) + 1;
+                    // half should be at least 2
+                    var split1 = part.Take(half).ToList();
+                    var split2 = part.Skip(half - 1).ToList();
+                    var toAdd = RecursivelyComputeCoveringBoundingBoxes(new List<IEnumerable<Coord>>() { split1, split2 }, thresholdAreaInMetersSquared);
+                    result.AddRange(toAdd);
                 }
-            }     
+            }
+            return result;
+        }
+        public static List<BoundingBox> GetSmartBoundingBoxes(this IEnumerable<Coord> coordinates)
+        {
+            var coordList = coordinates.ToList();
+            var peuckerIndices = coordList.DouglasPeuckerIndices(Config.DefaultValues.Douglas_Peucker_Margin_For_Long_Dist_Snapping_In_Meters);
+            List<IEnumerable<Coord>> peuckerParts = new List<IEnumerable<Coord>>();
+            for (int i = 1; i < peuckerIndices.Count; i++)
+            {
+                var startIndex = peuckerIndices[i - 1];
+                var endIndex = peuckerIndices[i];
+                List<Coord> part = coordList.GetRange(startIndex, endIndex - startIndex + 1);
+                peuckerParts.Add(part);
+            }
+            var result = RecursivelyComputeCoveringBoundingBoxes(peuckerParts, Config.DefaultValues.Too_Large_BoundingBox_In_Meters_Squared);
+            return result; 
         }
 
         /// <summary>

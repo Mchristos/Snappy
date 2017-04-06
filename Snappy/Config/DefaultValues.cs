@@ -23,5 +23,8 @@ namespace Snappy.Config
         public const double Too_Fast_In_Kilometres_Per_Hour_For_Coordinate_Cleaning = 200;
         public const double Too_Large_BoundingBox_In_Meters_Squared = 1E9;
         /****************************  ________________ ****************************/
+
+        public const double Douglas_Peucker_Margin_For_Long_Dist_Snapping_In_Meters = 5000;
+
     }
 }

@@ -68,6 +68,18 @@ namespace Snappy.Functions
             return DouglasPeucker(indexedList, epsilon).Select(x => x.Item1).ToList();         
         }
 
+        public static List<int> DouglasPeuckerIndices(this IEnumerable<Coord> polyline, double epsilon)
+        {
+            List<Tuple<Coord, int>> indexedList = new List<Tuple<Coord, int>>();
+            var coordList = polyline.ToList();
+            for (int i = 0; i < coordList.Count; i++)
+            {
+                var tuple = new Tuple<Coord, int>(coordList[i], i);
+                indexedList.Add(tuple);
+            }
+            return DouglasPeucker(indexedList, epsilon).Select(x => x.Item2).ToList();
+        }
+
         public static List<Tuple<Coord, int>> DouglasPeucker(this List<Tuple<Coord, int>> source, double epsilon)
         {
             if (source.Count <= 2)
