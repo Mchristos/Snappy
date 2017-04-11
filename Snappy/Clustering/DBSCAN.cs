@@ -28,8 +28,7 @@ namespace Snappy.Clustering
         {
             _MinPts = MinPts;
             _radius = radius;
-            //GetDistance = (a, b) => DistanceFunctions.HaversineDistance(a, b).DistanceInMeters;
-            GetDistance = (a, b) => DistanceFunctions.FasterHaversineDistance(a, b);            
+            GetDistance = (a, b) => DistanceFunctions.HaversineDistance(a, b).DistanceInMeters;            
             IsCloseEnough = (a, b, c) => (GetDistance(a, b) < (Math.Exp(-Math.Pow(c,0.6)/40) * _radius));
         }
 

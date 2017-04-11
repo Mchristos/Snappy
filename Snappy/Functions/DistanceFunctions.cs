@@ -26,29 +26,40 @@ namespace Snappy.Functions
         {
             return LawOfCosinesDistance(coord1.Latitude, coord1.Longitude, coord2.Latitude, coord2.Longitude);
         }
+
         public static Distance LawOfCosinesDistance(double latitude1, double longitude1, double latitude2, double longitude2)
         {
-            return ValueObjects.Distance.FromMeters(Math.Acos(Math.Sin(latitude1) * Math.Sin(latitude2) + Math.Cos(latitude1) * Math.Cos(latitude2) * Math.Cos(longitude2 - longitude1)) * Constants.Earth_Radius_In_Meters);
+            double lat1 = latitude1.ToRadians();
+            double lat2 = latitude2.ToRadians();
+            double lng1 = longitude1.ToRadians();
+            double lng2 = longitude2.ToRadians();
+
+            var x = Math.Sin(lat1) * Math.Sin(lat2);
+            var y = Math.Cos(lat1) * Math.Cos(lat2) * Math.Cos(lng2 - lng1);
+            var sum = x + y;
+            if (sum >= 1)
+            {
+                return Distance.Zero;
+            }
+            var meters = Math.Acos(sum) * Constants.Earth_Radius_In_Meters;
+            return ValueObjects.Distance.FromMeters(meters);
         }
-        public static double FasterHaversineDistance(Coord pointA, Coord pointB)
+
+        public static double Distance3D(Coord pointA, Coord pointB)
         {
             var g1 = new CartesianPoint3D(pointA.Latitude, pointA.Longitude);
             var g2 = new CartesianPoint3D(pointB.Latitude, pointB.Longitude);
-            return FasterHaversineDistance(g1, g2);
+            return Distance3D(g1, g2);
         }
 
-        private static double FasterHaversineDistance(CartesianPoint3D g1, CartesianPoint3D g2)
+        private static double Distance3D(CartesianPoint3D g1, CartesianPoint3D g2)
         {
             double dX = g1.X - g2.X;
             double dY = g1.Y - g2.Y;
             double dZ = g1.Z - g2.Z;
-
             double r = Math.Sqrt(dX * dX + dY * dY + dZ * dZ);
-
-            return Constants.Earth_Diameter_In_Meters* Math.Asin(r);
+            return Constants.Earth_Diameter_In_Meters * Math.Asin(r);
         }
-
-
 
         public static Distance ComputeLength(this List<Coord> polyline)
         {
@@ -80,7 +91,7 @@ namespace Snappy.Functions
 
             Distance result = Distance.Zero;
             result += projection.HaversineDistance(geometry[position + 1]);
-            for (int i = position + 2 ; i < geometry.Count; i++)
+            for (int i = position + 2; i < geometry.Count; i++)
             {
                 result += geometry[i].HaversineDistance(geometry[i - 1]);
             }

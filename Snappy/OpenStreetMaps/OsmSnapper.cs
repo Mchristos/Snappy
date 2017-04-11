@@ -237,7 +237,7 @@ namespace Snappy.OpenStreetMaps
 
             for (int i = 1; i < gpxTrack.Count; i++)
             {
-                var distance = DistanceFunctions.FasterHaversineDistance(gpxTrack[i - 1], gpxTrack[i]);
+                var distance = gpxTrack[i - 1].HaversineDistance(gpxTrack[i]).DistanceInMeters;
                 pointArray.Add(distance);
             }
 

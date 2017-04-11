@@ -86,14 +86,14 @@ namespace Snappy.Clustering
                     for (int j = 0; j < _c; j++)
                     {
                         //double theijconstantweneed = Math.Pow(DistanceFunctions.HaversineDistance(points[i], centers[j]).DistanceInMeters, 2 / (_m - 1));
-                        double theijconstantweneed = Math.Pow(DistanceFunctions.FasterHaversineDistance(points[i], centers[j]), 2 / (_m - 1));
+                        double theijconstantweneed = Math.Pow(DistanceFunctions.HaversineDistance(points[i], centers[j]).DistanceInMeters, 2 / (_m - 1));
                         //double theijconstantweneed = Math.Pow(DistanceFunctions.LawOfCosinesDistance(points[i], centers[j]).DistanceInMeters, 2 / (_m - 1));
                         //double theijconstantweneed = Math.Pow(DistanceFunctions.ApproximateDistance(points[i], centers[j]).DistanceInMeters, 2 / (_m - 1));
                         double denominator = 0.0;
                         for (int k = 0; k < _c; k++)
                         {
                             //denominator += theijconstantweneed / Math.Pow(DistanceFunctions.HaversineDistance(points[i], centers[k]).DistanceInMeters, 2 / (_m - 1));
-                            denominator += theijconstantweneed / Math.Pow(DistanceFunctions.FasterHaversineDistance(points[i], centers[k]), 2 / (_m - 1));
+                            denominator += theijconstantweneed / Math.Pow(DistanceFunctions.HaversineDistance(points[i], centers[k]).DistanceInMeters, 2 / (_m - 1));
                             //denominator += theijconstantweneed / Math.Pow(DistanceFunctions.LawOfCosinesDistance(points[i], centers[k]).DistanceInMeters, 2 / (_m - 1));
                             //denominator += theijconstantweneed / Math.Pow(DistanceFunctions.ApproximateDistance(points[i], centers[k]).DistanceInMeters, 2 / (_m - 1));
                         }
