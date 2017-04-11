@@ -191,8 +191,14 @@ namespace Snappy.OpenStreetMaps
 
     public class SnapSummary
     {
+        /// <summary>
+        /// Total time to perform snapping, including API call and other pre-computations.
+        /// </summary>
         public double TotalSnapTimeInSeconds { get; set; }
 
+        /// <summary>
+        /// Time to perform snapping after necessary precomputation (calling Overpass API, building graph, etc.). 
+        /// </summary>
         public double PerformSnapTimeInSeconds { get; set; }
 
         public double MeanUpdateTimeInMilliseconds { get; set; }
