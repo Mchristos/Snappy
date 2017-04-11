@@ -19,7 +19,8 @@ namespace Snappy.Functions
 
         public static double Haversine(double radians)
         {
-            return Math.Pow(Math.Sin(radians / 2), 2);
+            var x = Math.Sin(radians / 2);
+            return x * x;
         }
 
         public static double MetersToDeltaLat(double meters)
