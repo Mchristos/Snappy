@@ -66,9 +66,9 @@ namespace Snappy.OpenStreetMaps
         /// <param name="highwayTags"></param>
         /// <param name="railTags"></param>
         /// <returns> List of snapped geometries. If it fails to find one continuous OSM geometry corresponding to the track, the list contains more than one geometry. Otherwise count = 1</returns>
-        public List<List<Coord>> SnapDat(List<Coord> track, List<DateTime> timeStamps = null, bool highwayTags = true, bool railTags = true, bool ignoreOneWays = false)
+        public List<List<Coord>> SnapDat(IEnumerable<Coord> track, IEnumerable<DateTime> timeStamps = null, bool highwayTags = true, bool railTags = true, bool ignoreOneWays = false)
         {
-            if (track.Count < 2) { return new List<List<Coord>>() { track }; }
+            if (track.Count() < 2) { return new List<List<Coord>>() { track.ToList() }; }
 
             var result = new List<List<Coord>>();
 

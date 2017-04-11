@@ -17,31 +17,38 @@ namespace Snappy.Functions
         /// <param name ="timeStamps"></param>
         /// <param name ="radiusInMeters"></param>
         /// <returns></returns>
-        public static List<Coord> GetCleanedCoordinates(this List<Coord> track, List<DateTime> timeStamps = null, double radiusInMeters = 2 * DefaultValues.GPS_Error_In_Meters)
+        public static List<Coord> GetCleanedCoordinates(this IEnumerable<Coord> track, IEnumerable<DateTime> timeStamps = null, double radiusInMeters = 2 * DefaultValues.GPS_Error_In_Meters)
         {
             if (timeStamps != null)
             {
-                if (track.Count != timeStamps.Count) throw new ArgumentException("Time stamps must correspond to trace co-ordinates");
+                if (track.Count() != timeStamps.Count()) throw new ArgumentException("Time stamps must correspond to trace co-ordinates");
             }
-            if (track.Count < 2) return track;
+
+            var trackList = track.ToList();
+            List<DateTime> timeStampList = null;
+            if(timeStamps != null)
+            {
+                timeStampList = timeStamps.ToList();
+            }
+            if (trackList.Count < 2) return trackList;
 
             var result = new List<Coord>();
-            result.Add(track.First());
+            result.Add(trackList.First());
             int currentIndex = 0;
             int iterator = 1;
-            while (currentIndex < track.Count && iterator < track.Count)
+            while (currentIndex < trackList.Count && iterator < trackList.Count)
             {
-                ValueObjects.Distance dist = track[iterator].HaversineDistance(track[currentIndex]);
+                ValueObjects.Distance dist = trackList[iterator].HaversineDistance(trackList[currentIndex]);
                 bool passedSpeedTest = true;
-                if (timeStamps != null)
+                if (timeStampList != null)
                 {
-                    TimeSpan timeDiff = timeStamps[iterator] - timeStamps[currentIndex];
+                    TimeSpan timeDiff = timeStampList[iterator] - timeStampList[currentIndex];
                     var avgSpeedInKmPerHour = dist.DistanceInKilometers / timeDiff.TotalHours;
                     passedSpeedTest = avgSpeedInKmPerHour < DefaultValues.Too_Fast_In_Kilometres_Per_Hour_For_Coordinate_Cleaning;
                 }
                 if (dist.DistanceInMeters > radiusInMeters && passedSpeedTest)
                 {
-                    result.Add(track[iterator]);
+                    result.Add(trackList[iterator]);
                     currentIndex = iterator;
                 }
                 iterator += 1;
