@@ -63,14 +63,40 @@
     <Compile Include="DistanceTests.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="ExtensionsTests.cs" />
+    <Compile Include="GpxImporter\GPXData.cs" />
+    <Compile Include="GpxImporter\GPXLoader.cs" />
+    <Compile Include="GpxImporter\GPXMeta.cs" />
+    <Compile Include="GpxImporter\GPXPoint.cs" />
+    <Compile Include="GpxImporter\GPXTrackPoint.cs" />
+    <Compile Include="GpxImporter\GPXWaypoint.cs" />
     <Compile Include="GraphTests.cs" />
     <Compile Include="Helpers\DataHelpers.cs" />
+    <Compile Include="HelpfulThings.cs" />
     <Compile Include="MapMatchingTests.cs" />
     <Compile Include="SearchGridTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SnappingTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="TestData\GpxTracks\Bellville to Belhar.gpx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\GpxTracks\Bellville to Durbanville.gpx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\GpxTracks\Bellville to Makhaza-khayelitsha_2016-09-13_09-58-24.gpx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\GpxTracks\bellville-ester_rivier_2016-09-14_11-19-37[1].gpx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\GpxTracks\Bellville_station_to_Khayelitsha_2016-09-13_14-41-40.gpx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\GpxTracks\Bellville_station_to_Mowbray_2016-09-15_11-45-20.gpx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Snappy\Snappy.csproj">

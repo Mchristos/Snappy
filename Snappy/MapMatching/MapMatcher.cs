@@ -3,6 +3,7 @@ using Snappy.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Snappy.Functions;
 
 namespace Snappy.MapMatching
 {
@@ -25,7 +26,7 @@ namespace Snappy.MapMatching
 
         private Dictionary<string, T> _dataByRoadId { get; set; }
 
-        public MapMatcher(List<T> data, Func<T, DirectedRoad> dataToRoad, MapMatcherParameters parameters, BoundingBox boundingBox = null)
+        public MapMatcher(List<T> data, Func<T, DirectedRoad> dataToRoad, MapMatcherParameters parameters, BoundingBox boundingBox = null, bool useSearchGrid = true)
         {
             // Initialize parameters
             Parameters = parameters;
@@ -42,7 +43,10 @@ namespace Snappy.MapMatching
             Graph = graph;
 
             // Compute search grid (for accessing nearby roads)
-            SearchGrid = SearchGridFactory.ComputeSearchGrid(graph, parameters.NearbyRoadsThreshold, boundingBox);
+            if (useSearchGrid)
+            {
+                SearchGrid = SearchGridFactory.ComputeSearchGrid(graph, parameters.NearbyRoadsThreshold, boundingBox);
+            }
 
             // Initialize state
             State = MapMatchState.InitialState();
@@ -63,7 +67,7 @@ namespace Snappy.MapMatching
             UpdateInfo.PrevProbabilities = State.Probabilities;
 
             // Find nearby roads using search grid
-            List<DirectedRoad> nearbyRoads = SearchGrid.GetNearbyValues(coord, Parameters.NearbyRoadsThreshold);
+            List<DirectedRoad> nearbyRoads = GetNearbyRoads(coord, Parameters.NearbyRoadsThreshold);
             if (nearbyRoads.Count == 0)
             {
                 // If no nearby roads, update fails.
@@ -205,6 +209,19 @@ namespace Snappy.MapMatching
                 UpdateInfo.PrintUpdateSummary(20);
             }
             return true;
+        }
+
+        private List<DirectedRoad> GetNearbyRoads(Coord query, double radiusInMeters)
+        {
+            if(SearchGrid != null)
+            {
+                return SearchGrid.GetNearbyValues(query, radiusInMeters);
+            }
+            else
+            {
+                int i;
+                return Graph.Roads.Where(x => query.SnapToPolyline(x.Geometry, out i).HaversineDistance(query).DistanceInMeters < radiusInMeters).ToList();
+            }
         }
 
         public void Reset()

@@ -18,6 +18,8 @@ namespace Snappy.OpenStreetMaps
 
         private bool _printConsoleUpdates { get; set; }
 
+        private bool _useSearchGrid { get; set; }
+
         public BoundingBox SnappingArea { get; set; }
 
         public OsmMapMatcher MapMatcher { get; set; }
@@ -33,9 +35,10 @@ namespace Snappy.OpenStreetMaps
         /// <param name="boundingBox"></param>
         /// <param name="parameters"></param>
         /// <param name="printConsoleUpdates"></param>
-        public OsmSnapper(OverpassApi overpassApi, BoundingBox boundingBox = null, MapMatcherParameters parameters = null, bool printConsoleUpdates = false)
+        public OsmSnapper(OverpassApi overpassApi, BoundingBox boundingBox = null, MapMatcherParameters parameters = null, bool printConsoleUpdates = false, bool useSearchGrid = true)
         {
             _printConsoleUpdates = printConsoleUpdates;
+            _useSearchGrid = useSearchGrid;
             if(parameters == null)
             {
                 parameters = MapMatcherParameters.Default;
@@ -51,7 +54,7 @@ namespace Snappy.OpenStreetMaps
                 SnappingArea = boundingBox;
                 // Build graph in bounding box and initialize map matcher (involves computing search grid data structure) 
                 var graph = OsmGraphBuilder.BuildInRegion(_overpassApi, boundingBox );
-                MapMatcher = new OsmMapMatcher(graph, parameters);
+                MapMatcher = new OsmMapMatcher(graph, parameters, _useSearchGrid);
             }
         }
 
@@ -80,7 +83,7 @@ namespace Snappy.OpenStreetMaps
                 // Build graph in region and initialize map matcher
                 var boundingBoxes = track.GetSmartBoundingBoxes();                
                 var osmGraph = OsmGraphBuilder.BuildInRegion(_overpassApi, boundingBoxes, highwayTags, railTags, ignoreOneWays);
-                mapMatcher = new OsmMapMatcher(osmGraph, Parameters);
+                mapMatcher = new OsmMapMatcher(osmGraph, Parameters, _useSearchGrid);
             }
             else
             {
