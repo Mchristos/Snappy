@@ -26,7 +26,7 @@ namespace Snappy.MapMatching
 
         private Dictionary<string, T> _dataByRoadId { get; set; }
 
-        public MapMatcher(List<T> data, Func<T, DirectedRoad> dataToRoad, MapMatcherParameters parameters, BoundingBox boundingBox = null, bool useSearchGrid = true)
+        public MapMatcher(List<T> data, Func<T, DirectedRoad> dataToRoad, MapMatcherParameters parameters, bool useSearchGrid = true, BoundingBox boundingBox = null)
         {
             // Initialize parameters
             Parameters = parameters;
@@ -40,11 +40,16 @@ namespace Snappy.MapMatching
                 graph.AddRoad(road);
                 _dataByRoadId[road.Squid] = datum;
             }
-            Graph = graph;
+            Graph = graph;            
 
             // Compute search grid (for accessing nearby roads)
             if (useSearchGrid)
             {
+                // Compute bounding box if not given
+                if (boundingBox == null)
+                {
+                    boundingBox = graph.Nodes.Values.GetBoundingBox();
+                }
                 SearchGrid = SearchGridFactory.ComputeSearchGrid(graph, parameters.NearbyRoadsThreshold, boundingBox);
             }
 
