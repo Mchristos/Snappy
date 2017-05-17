@@ -23,7 +23,7 @@ namespace Snappy.MapMatching
 
         public Emission(ProjectToRoad projection, double sigmaValue)
         {
-            Probability = ProbabilityFunctions.HalfGaussian(projection.ProjectedDistance.DistanceInMeters, sigmaValue);
+            Probability = ProbabilityFunctions.Gaussian(projection.ProjectedDistance.DistanceInMeters, sigmaValue);
             Distance = projection.ProjectedDistance;
         }
 

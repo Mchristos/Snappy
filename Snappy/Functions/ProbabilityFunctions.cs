@@ -14,10 +14,9 @@ namespace Snappy.Functions
             return (1 / beta) * Math.Exp(-input / beta);
         }
 
-        //Normalized Half-Normal distribution
-        public static double HalfGaussian(double distance, double sigma)
+        public static double Gaussian(double distance, double sigma)
         {
-            return (Math.Sqrt(2) / (sigma * Math.Sqrt(Math.PI))) * Math.Exp(-(distance * distance) / (2 * sigma * sigma));
+            return (1 / sigma * Config.Constants.Square_Root_Of_Two_Pi) * Math.Exp(-(distance * distance) / (2 * sigma * sigma));
         }
     }
 }
